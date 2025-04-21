@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+    {{ block.super }}  {# Ensures Django Admin's default JavaScript is included #}
+{% endblock %}
+
+{% block content %}
+<div class="content-main">
+    <h2>Add a Step for: {{ testcase.name }}</h2>
+
+    <form method="post" class="add-step-form">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+
+          {{ field.label_tag }} {{ field }}
+          {% if field.errors %}
+              <div class="error">{{ field.errors }}</div>
+          {% endif %}
+      </div>
+  {% endfor %}
+  <button type="submit" href="{% url 'admin:core_testcasemodel_change' 13000 %}">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

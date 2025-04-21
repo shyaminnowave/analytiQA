@@ -1,0 +1,38 @@
+{% if steps %}
+    <div style="margin-bottom: 15px;">
+        <a href="{% url 'admin:core_testcasemodel_addStep' testcase_id %}">
+            <input type="button" value="Add Steps" style="margin-bottom: 15px; float: right;">
+        </a>
+    </div>
+
+<table border="1" style="border-collapse: collapse;" width="100%">
+    <tr>
+        <th>Step Number</th>
+        <th>Step Action</th>
+        <th>Step Data</th>
+        <th>Expected Result</th>
+    </tr>
+
+    {% for step_number, step in steps %}
+    <tr>
+        <td>{{ step_number }}</td>
+        <td>{{ step.step_action }}</td>
+        {% if step.step_data %}
+            <td>{{ step.step_data }}</td>
+        {% else %}
+            <td> {{ "None" }}</td>
+        {% endif %}
+        <td>{{ step.expected_result }}</td>
+        <td>
+            <a href="{% url 'admin:core_testcasemodel_changeStep' testcase_id step_number %}">
+                <input type="button" class="btn btn-primary btn-sm" value="Edit">
+            </a>
+
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No steps available</p>
+{% endif %}

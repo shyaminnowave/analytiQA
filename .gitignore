@@ -1,0 +1,16 @@
+.env
+pytest.ini
+supervisord.conf
+apps/*/__pycache__/
+apps/*/migrations/__pycache__
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+.env
+db.sqlite3
+general.log
+Dockerfile
+.dockerignore
+.conda
