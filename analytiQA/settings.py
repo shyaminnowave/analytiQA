@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from celery.schedules import crontab
-from ckeditor_demo.settings import DATABASES
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,11 +16,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_m0rc09s$wa@4^6snye)o2=l(e-gf00g1zwry5aq_pl4b7ic3t'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+DEBUG = True if os.environ.get('DEBUG') else False
+ALLOWED_HOSTS = []
+
+if ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOSTS'))
 
 CORS_ALLOWED_ORIGINS = [os.environ.get('CORS_ALLOWED_ORIGINS')]
 CORS_ORIGIN_ALLOW_ALL= True if os.environ.get('CORS_ORIGIN_ALLOW_ALL') == '1' else False
