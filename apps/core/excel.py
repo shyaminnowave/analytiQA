@@ -1,17 +1,17 @@
+from celery import shared_task
 from django.contrib.contenttypes.models import ContentType
 from openpyxl import load_workbook
+from apps.account.models import Account
 from apps.core.models import (
     TestCaseModel,
-    TestCaseChoices,
-    TestCaseStep,
     Tag
 )
 from apps.core.utlity import QuerySetEntry
 from abc import ABC, abstractmethod
-from django.db.models import Model
+from collections import defaultdict
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from django.db import transaction
 from apps.general.models import Notification
+from collections import defaultdict
 
 
 class FileFactory(ABC):
@@ -23,7 +23,7 @@ class FileFactory(ABC):
 class ExcelFileFactory(FileFactory):
     """Base factory class to handle Excel file operations."""
 
-    def __init__(self, file, request):
+    def __init__(self, file, user):
         self.response_format = {
             "status": True,
             "status_code": HTTP_200_OK,
@@ -31,7 +31,7 @@ class ExcelFileFactory(FileFactory):
             "message": ""
         }
         self.file = file
-        self.request = request
+        self.user = user
 
     def _init_workbook(self):
         """Initialize the workbook and return the active sheet."""
@@ -41,10 +41,11 @@ class ExcelFileFactory(FileFactory):
     def import_data(self):
         pass
 
+
 class TestCaseExl(ExcelFileFactory):
 
-    def __init__(self, file, request):
-        super(TestCaseExl, self).__init__(file, request)
+    def __init__(self, file, user):
+        super(TestCaseExl, self).__init__(file, user)
         self.ws = self._init_workbook()
 
     def get_tag(self, tags):
@@ -69,12 +70,78 @@ class TestCaseExl(ExcelFileFactory):
         })
         return self.response_format
 
+    def get_row_dict(self):
+        sheet = self.ws
+        headings = {}
+        for idx, col in enumerate(sheet.iter_cols(min_row=1, max_row=1, values_only=False)):
+            for cell in col:
+                headings[cell.value] = idx
+        return headings
+
+    def _parse_step(self):
+        """
+        Parse the step data from the worksheet using your improved logic
+        """
+        sheet = self.ws
+        data = []
+        current_key = None
+        prev = None
+        headings = self.get_row_dict()
+
+        print(headings)
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            key = row[headings['Key']] if row[headings['Key']] is not None else current_key
+            value = row[headings['Manual Test Steps'] + 1]
+            print(key, value)
+            if key:
+                current_key = key
+            prev = value if value in ['Action', 'Data', 'Expected Result'] else prev
+            if value != None and value not in ["Action", "Data", "Expected Result"]:
+                _ts = {
+                    prev: value
+                }
+                data.append((current_key, _ts))
+
+        test_cases = defaultdict(dict)
+        current = {}
+        step_counter = defaultdict(int)
+        prev_case_id = None
+
+        for case_id, detail in data:
+            key = list(detail.keys())[0]
+            value = list(detail.values())[0]
+
+            if case_id != prev_case_id and current:
+                step_counter[prev_case_id] += 1
+                test_cases[prev_case_id][step_counter[prev_case_id]] = current
+                current = {}
+
+            if key == 'Action':
+                if current:
+                    step_counter[case_id] += 1
+                    test_cases[case_id][step_counter[case_id]] = current
+                current = {'step_action': value, 'step_data': '', 'expected_result': ''}
+            elif key == 'Data':
+                current['step_data'] = value
+            elif key == 'Expected Result':
+                current['expected_result'] = f"{current['expected_result']} {value}" if current[
+                    'expected_result'] else value
+
+            prev_case_id = case_id
+
+        if current:
+            step_counter[prev_case_id] += 1
+            test_cases[prev_case_id][step_counter[prev_case_id]] = current
+        print(dict(test_cases))
+        return dict(test_cases)
 
     def import_data(self):
         """
         Import TestCase and Its Related Data from the Excel
         """
         testcase_list = set(TestCaseModel.objects.values_list('jira_id', flat=True))
+        _steps = self._parse_step()
+        headings = self.get_row_dict()
         testcases_with_tags = []
         tests = []
         _step = dict()
@@ -95,41 +162,29 @@ class TestCaseExl(ExcelFileFactory):
         }
         try:
             for row in self.ws.iter_rows(min_row=2, values_only=True):
-                print('one', row[0])
-                jira_id = str(row[0]).split("-")[1] if row[0] else None
-                if row[0] and int(jira_id) not in testcase_list:
-                    tag_names = [tag.strip() for tag in row[6].split(",")] if row[6] else []
-                    _data = {
-                        "jira_id": int(jira_id),
-                        "name": row[1],
-                        "summary": row[1],
-                        "description": row[1],
-                        "priority": priority.get(row[3], 'class_3'),
-                        "testcase_type": types.get(row[4], 'performance'),
-                        "status": status.get(row[5], 'todo'),
-                        "created_by": self.request.user,
-                        "steps": {}
-                    }
-                    tests.append(_data)
-                    testcases_with_tags.append({int(str(row[0]).split("-")[1]): tag_names})
-                    if row[0] and row[9]:
-                        _step[int(row[9])] = {
-                            "step_action": row[10],
-                            "step_data": row[11],
-                            "expected_result": row[12]
+                if row[headings['Key']] is not None:
+                    jira_id = str(row[headings['Key']]).split("-")[1] if row[headings['Key']] else None
+                    if int(jira_id) not in testcase_list:
+                        tag_names = [tag.strip() for tag in row[headings['Labels']].split(",")] if row[headings['Labels']] else []
+                        _data = {
+                            "jira_id": jira_id,
+                            "name": row[headings['Summary']] if row[headings['Summary']] is not None else None,
+                            "summary": row[headings['Summary']],
+                            "description": row[headings['Summary']],
+                            "priority": priority.get(row[headings['Priority']], 'class_3'),
+                            "testcase_type": 'performance',
+                            "status": status.get(row[headings['Status']], 'todo'),
+                            "reporter": row[headings['Reporter']],
+                            "created_by": self.user,
+                            "steps": dict(_steps[row[headings['Key']]]),
                         }
-                        tests[-1]["steps"].update(_step)
-                elif row[0] is None and row[9] is not None:
-                    if _step:
-                        _step[int(row[9])] = {
-                            "step_action": row[10],
-                            "step_data": row[11],
-                            "expected_result": row[12]
-                        }
-                        tests[-1]["steps"].update(_step) if tests[-1]["steps"] else None
-                        _step = dict()
+                        tests.append(_data)
+                        testcases_with_tags.append({int(str(row[headings['Key']]).split("-")[1]): tag_names})
             if tests:
-                QuerySetEntry.bulk_create_entries(TestCaseModel, [TestCaseModel(**i) for i in tests])
+                try:
+                    QuerySetEntry.bulk_create_entries(TestCaseModel, [TestCaseModel(**i) for i in tests])
+                except Exception as e:
+                    print('error', str(e))
                 for i in testcases_with_tags:
                     for instance, tag in i.items():
                         _instance = TestCaseModel.objects.get(jira_id=instance)
@@ -137,8 +192,8 @@ class TestCaseExl(ExcelFileFactory):
                         _instance.tags.set(tags)
                 Notification.objects.create(
                     message=f"Testcases Uploaded Successfully!",
-                    user=self.request.user if self.request.user else None,
-                    assigned_to=self.request.user if self.request.user else None,
+                    user=self.user if self.user else None,
+                    assigned_to=self.user if self.user else None,
                     content_type=ContentType.objects.get_for_model(TestCaseModel),
                     status=True
                 )
@@ -147,11 +202,12 @@ class TestCaseExl(ExcelFileFactory):
         except Exception as e:
             Notification.objects.create(
                 message=f"Testcases Uploaded Failed!",
-                user=self.request.user if self.request.user else None,
-                assigned_to=self.request.user if self.request.user else None,
+                user=self.user if self.user else None,
+                assigned_to=self.user if self.user else None,
                 content_type=ContentType.objects.get_for_model(TestCaseModel),
                 status=False
             )
+            print(str(e))
             return self._build_error_response(e)
         return self._build_success_response("TestCase Uploaded Successfully")
 

@@ -35,6 +35,7 @@ pillow = "^11.1.0"
 pyxlsb = "^1.0.10"
 channels = {extras = ["daphne"], version = "^4.2.0"}
 python-dotenv = "^1.1.0"
+django-celery-results = "^2.6.0"
 
 
 [build-system]

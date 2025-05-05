@@ -33,11 +33,11 @@ class STBManufacture(TimeStampedModel):
         verbose_name_plural = 'STB Manufactures'
 
 
-class Natco(TimeStampedModel):
+class NatCo(TimeStampedModel):
 
     country = models.CharField(max_length=200)
     natco = models.CharField(max_length=10)
-    manufacture = models.ManyToManyField(STBManufacture, blank=True, related_name='devices')
+    manufacture = models.ForeignKey(STBManufacture, blank=True, on_delete=models.CASCADE, related_name='devices')
     language = models.ManyToManyField(Language, blank=True, related_name='languages')
     history = HistoricalRecords()
 
@@ -75,7 +75,7 @@ class NatcoRelease(TimeStampedModel):
         MAJOR = 'MR', _('MR')
         PATCH = "PAT", _('PAT')
 
-    natcos = models.ForeignKey(Natco, on_delete=models.CASCADE, related_name='release')
+    natcos = models.ForeignKey(NatCo, on_delete=models.CASCADE, related_name='release')
     release_type = models.CharField(choices=ReleaseType.choices, max_length=20, help_text="MR - Major Release")
     build_type = models.CharField(max_length=200, default='', blank=True, null=True)
     build_version = models.CharField(max_length=200, blank=True, null=True)

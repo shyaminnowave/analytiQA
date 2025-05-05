@@ -8,6 +8,7 @@ from django.db.models.signals import Signal
 from django.core import mail
 from django.conf import settings
 from apps.account.token import user_token_generator
+from apps.account.tasks import send_verification_mail
 
 User = get_user_model()
 user_token_login = Signal()
@@ -83,18 +84,12 @@ def token_logout(sender, user, request, **kwargs):
         logger.error(str(e))
 
 
-# @receiver(post_save, sender=User)
-# def send_mail(sender, instance, created, **kwargs):
-#     if created:
-#         email = instance.email if instance.email else None
-#         try:
-#             with mail.get_connection() as connection:
-#                 mail.EmailMessage(
-#                     subject="Testing Mail",
-#                     from_email=settings.EMAIL_HOST_USER,
-#                     body=user_token_generator.make_token(instance),
-#                     to=(email,),
-#                     connection=connection
-#                 ).send()
-#         except Exception as e:
-#             logger.error(str(e))
+@receiver(post_save, sender=User)
+def send_mail(sender, instance, created, **kwargs):
+    if created:
+        email = instance.email if instance.email else None
+        token = user_token_generator.make_token(instance)
+        try:
+            send_verification_mail.delay(email, token)
+        except Exception as e:
+            logger.error(str(e))

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.stb.models import Language, STBManufacture, Natco, STBNode, STBNodeConfig,  \
+from apps.stb.models import Language, STBManufacture, NatCo, STBNode, STBNodeConfig,  \
     NatcoRelease
 from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ImportExportModelAdmin
@@ -16,7 +16,7 @@ class STBManufactureAdmin(ImportExportModelAdmin):
     search_fields = ['manufacture']
 
 
-@admin.register(Natco)
+@admin.register(NatCo)
 class NatcoAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 
     list_display = ['natco', 'country']
