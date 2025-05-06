@@ -20,15 +20,15 @@ def send_verification_mail(email, token):
                 }
             )
         with mail.get_connection() as connection:
-            email = mail.EmailMultiAlternatives(
+            instance = mail.EmailMultiAlternatives(
                 subject="Account Activation Mail",
                 from_email=settings.EMAIL_HOST_USER,
                 body='',
-                to=["shyam6132@gmail.com",],
+                to=[email,],
                 connection=connection,
             )
-            email.attach_alternative(html_template, "text/html")
-            email.send()
+            instance.attach_alternative(html_template, "text/html")
+            instance.send()
             print("Email sent successfully")
     except Exception as e:
         logger.error(str(e))
