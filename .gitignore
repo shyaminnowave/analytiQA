@@ -13,6 +13,6 @@ db.sqlite3
 general.log
 Dockerfile
 docker-compose.yml
+docker-file/
 .dockerignore
-docker-file
 
