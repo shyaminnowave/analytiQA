@@ -24,11 +24,12 @@ def send_verification_mail(email, token):
                 subject="Account Activation Mail",
                 from_email=settings.EMAIL_HOST_USER,
                 body='',
-                to=["govind.raj@innowave.tech",],
+                to=["shyam6132@gmail.com",],
                 connection=connection,
             )
             email.attach_alternative(html_template, "text/html")
             email.send()
+            print("Email sent successfully")
     except Exception as e:
         logger.error(str(e))
 
