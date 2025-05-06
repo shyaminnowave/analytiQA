@@ -12,5 +12,6 @@ local_settings.py
 db.sqlite3
 general.log
 Dockerfile
+docker-compose.yml
 .dockerignore
 
