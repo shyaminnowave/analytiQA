@@ -36,7 +36,7 @@ jobs:
             --build-arg PASSWORD="${{ secrets.PASSWORD }}" \
             --build-arg PORT="${{ vars.PORT }}" \
             --build-arg USER="${{ vars.USER }}" \
-          -t ${{ secrets.DOCKER_REPO }}:latest .
+            -t ${{ secrets.DOCKER_REPO }}:latest .
 
       - name: Push Image to Docker Hub
         run: |
