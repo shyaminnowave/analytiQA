@@ -16,7 +16,7 @@ jobs:
 
       - name: Docker Build Image
         run: |
-          docker build . \
+          docker build 
             --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
             --build-arg ALLOWED_HOSTS="${{ vars.ALLOWED_HOSTS }}" \
             --build-arg CELERY_BROKER_URL="${{ vars.CELERY_BROKER_URL }}" \
