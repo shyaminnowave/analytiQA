@@ -1,0 +1,23 @@
+name: Django Docker CI
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  push_to_registry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: List directory contents
+        run: ls -lah
+
+      - name: Docker Build Image
+        run: docker build -t ${{ secrets.DOCKER_REPO }}:latest .
+
+      - name: Push Image to Docker Hub
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_USER_TOKEN }}
+          docker push ${{ secrets.DOCKER_REPO }}:latest
