@@ -16,4 +16,3 @@ docker-compose.yml
 docker-file/
 temp_uploads/
 .dockerignore
-
