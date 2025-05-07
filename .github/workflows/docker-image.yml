@@ -15,7 +15,28 @@ jobs:
         run: ls -lah
 
       - name: Docker Build Image
-        run: docker build -t ${{ secrets.DOCKER_REPO }}:latest .
+        run: |
+          docker build . \
+            --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            --build-arg ALLOWED_HOSTS="${{ vars.ALLOWED_HOSTS }}" \
+            --build-arg CELERY_BROKER_URL="${{ vars.CELERY_BROKER_URL }}" \
+            --build-arg CELERY_RESULT_BACKEND="${{ vars.CELERY_RESULT_BACKEND }}" \
+            --build-arg CORS_ALLOWED_ORIGINS="${{ vars.CORS_ALLOWED_ORIGINS }}" \
+            --build-arg CORS_ALLOW_CREDENTIALS="${{ vars.CORS_ALLOW_CREDENTIALS }}" \
+            --build-arg CORS_ORIGIN_ALLOW_ALL="${{ vars.CORS_ORIGIN_ALLOW_ALL }}" \
+            --build-arg DATABASE_ENGINE="${{ vars.DATABASE_ENGINE }}" \
+            --build-arg DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            --build-arg DEBUG="${{ vars.DEBUG }}" \
+            --build-arg EMAIL_HOST="${{ vars.EMAIL_HOST }}" \
+            --build-arg EMAIL_HOST_USER="${{ secrets.EMAIL_HOST_USER }}" \
+            --build-arg EMAIL_HOST_PASSWORD="${{ secrets.EMAIL_HOST_PASSWORD }}" \
+            --build-arg HOST="${{ vars.HOST }}" \
+            --build-arg INTERNAL_IPS="${{ vars.INTERNAL_IPS }}" \
+            --build-arg NAME="${{ vars.NAME }}" \
+            --build-arg PASSWORD="${{ secrets.PASSWORD }}" \
+            --build-arg PORT="${{ vars.PORT }}" \
+            --build-arg USER="${{ vars.USER }}" \
+          -t ${{ secrets.DOCKER_REPO }}:latest .
 
       - name: Push Image to Docker Hub
         run: |
