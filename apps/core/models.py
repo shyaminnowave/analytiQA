@@ -3,16 +3,16 @@ import json
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
-from apps.stb.models import Language, Natco, STBManufacture, NatcoRelease
+from apps.stb.models import Language, NatCo, STBManufacture, NatcoRelease
 from django.contrib.auth import get_user_model
 from simple_history.models import HistoricalRecords
 from django.db.models import Max
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from apps.core.managers import TestCaseManager
-from apps.stb.models import Language, Natco
 from django.contrib import admin
 from django.core import serializers
+from ckeditor.fields import RichTextField
 
 
 # Create your models here.
@@ -66,7 +66,7 @@ class TestCaseScript(TimeStampedModel):
     script_name = models.CharField(max_length=200, default='',)
     script_location = models.URLField(max_length=400)
     script_type = models.CharField(choices=TestCaseChoices.choices, max_length=20)
-    natCo = models.ForeignKey(Natco, on_delete=models.SET_NULL, null=True, blank=True, related_name='natCo_script')
+    natCo = models.ForeignKey(NatCo, on_delete=models.SET_NULL, null=True, blank=True, related_name='natCo_script')
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True,
                                  related_name='script_language')
     device = models.ForeignKey(STBManufacture, on_delete=models.SET_NULL, null=True, blank=True,
@@ -100,7 +100,7 @@ class TestCaseModel(TimeStampedModel):
     priority = models.CharField(max_length=20, choices=PriorityChoice.choices, default=PriorityChoice.CLASS_THREE,
                                 blank=True, null=True)
     summary = models.TextField(_("Jira Summary"), default='')
-    description = models.TextField(_('TestCase Description'), default='')
+    description = RichTextField(default='', help_text=(_("Text Description")))
     testcase_type = models.CharField(max_length=20, choices=TestCaseChoices.choices,  default=TestCaseChoices.SMOKE)
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.TODO)
     automation_status = models.CharField(max_length=100, choices=AutomationChoices.choices,
@@ -114,13 +114,16 @@ class TestCaseModel(TimeStampedModel):
     assigned = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True,
                                  to_field="email", related_name="assigned_testcase"
                                  )
-    history = HistoricalRecords()
     objects = TestCaseManager()
 
     class Meta:
         verbose_name = 'TestCase'
         verbose_name_plural = 'TestCases'
         ordering = ['-id', ]
+        permissions = (
+            ('can_change_status_to_review', "Can Change Status to Review"),
+            ('can_change_status_to_ready', "Can Change Status to Ready")
+        )
 
     @property
     def _history_user(self):
@@ -186,6 +189,9 @@ class TestCaseHistoryModel(TimeStampedModel):
         self.other_changes = json.loads(array_result[1:-1])
         self.save()
         return self.testcase.name
+    
+    class Meta:
+        ordering = ('-created',)
 
 
 class NatcoStatus(TimeStampedModel):
@@ -289,7 +295,7 @@ class ScriptIssue(TimeStampedModel):
 
 class Comment(TimeStampedModel):
 
-    comments = models.TextField()
+    comments = RichTextField(default='')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -300,6 +306,16 @@ class Comment(TimeStampedModel):
         return f"{self.comments[:20]}..."
 
 
+class TestCaseJobId(TimeStampedModel):
+
+    job_id = models.CharField(max_length=255)
+    testscript = models.ForeignKey(TestCaseScript, on_delete=models.CASCADE, related_name='job_id')
+    comments = GenericRelation("Comment", related_name='job_comments')
+
+    def __str__(self):
+        return self.job_id
+    
+    
 class TestPlan(TimeStampedModel):
 
     name = models.CharField(_("name"), max_length=255, help_text=(_('Name of TestPlan')))

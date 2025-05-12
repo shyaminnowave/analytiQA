@@ -16,14 +16,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') == '1' else False
+DEBUG = True if os.environ.get('DEBUG') else False
 ALLOWED_HOSTS = []
 
-if not DEBUG:
-    ALLOWED_HOSTS += [os.environ.get('ALLOWED_HOSTS')]
+if ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOSTS'))
 
 CORS_ALLOWED_ORIGINS = [os.environ.get('CORS_ALLOWED_ORIGINS')]
 CORS_ORIGIN_ALLOW_ALL= True if os.environ.get('CORS_ORIGIN_ALLOW_ALL') == '1' else False
@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
+    'ckeditor',
+    'django_celery_results',
 
     # Local Apps
     'apps.account',
@@ -107,8 +109,6 @@ DATABASES = {
         "PORT": os.environ.get('PORT'),
     }
 }
-
-print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -168,37 +168,29 @@ SPECTACULAR_SETTINGS = {
 
 INTERNAL_IPS = [
     # ...
-    os.environ.get("INTERNAL_IPS")
+    "127.0.0.1"
     # ...
 ]
 
 # Cache
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': "django.core.cache.backends.redis.RedisCache",
-#         'LOCATION': 'redis://localhost:6379/1',
-#         'TIMEOUT': 60 * 60 * 5, # 5 Hours
-#         'OPTIONS': {
-#             'CLIENT_CLASS": "django_redis.client.DefaultClient',
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.environ.get('CACHE_LOCATION'),
+        'TIMEOUT': 60 * 60 * 5, # 5 Hours
+    }
+}
 
 # Celery Configuration Options
-
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TIMEZONE = 'Asia/Kolkata'
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 60
-CELERY_ALWAYS_EAGER = True
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
 
 CELERY_BEAT_SCHEDULE = {
-    'get_stb_result': {
-        'task': 'apps.stb_tester.tasks.get_stb_result',
-        'schedule': crontab(minute=0, hour=0)
+    "get_stb_node_info" : {
+        "task": "apps.stb.tasks.get_stb_node_info",
+        "schedule": crontab(hour="*/3")
     }
 }
 
@@ -244,7 +236,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/images/'
-
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
 FIXTURE_DIRS = [
     os.path.join(BASE_DIR, 'fixtures')
 ]
@@ -269,8 +262,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 USER_ACTIVATE_TOKEN_TIMEOUT = 60 * 60
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')

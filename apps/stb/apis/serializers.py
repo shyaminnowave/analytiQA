@@ -1,6 +1,6 @@
 import re
 from rest_framework import serializers
-from apps.stb.models import Language, STBManufacture, Natco, NatcoRelease
+from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease
 
 
 def non_number_validator(value):
@@ -67,11 +67,11 @@ class NactoSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'country', 'natco', 'manufacture', 'language')
-        model = Natco
+        model = NatCo
 
     def validate(self, attrs): 
         if attrs['country'] and attrs['natco']:
-            if Natco.objects.filter(country=attrs['country'], natco=attrs['natco']).exists():
+            if NatCo.objects.filter(country=attrs['country'], natco=attrs['natco']).exists():
                 raise serializers.ValidationError("Country or Nacto Already Present Please Check")
         return attrs
 
@@ -85,7 +85,7 @@ class NactoSerializer(serializers.ModelSerializer):
 class NatcoOptionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Natco
+        model = NatCo
         fields = ('id', 'natco',)
 
 
@@ -109,7 +109,7 @@ class NatcoFilterSerializerView(serializers.ModelSerializer):
     value = serializers.CharField(source="natco", required=False)
 
     class Meta:
-        model = Natco
+        model = NatCo
         fields = ('label', 'value')
 
     def to_representation(self, instance):

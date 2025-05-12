@@ -8,6 +8,9 @@ urlpatterns = [
     path('testcase/', views.TestCaseListView.as_view(), name="testcase-list"),
     path('testcase', views.TestCaseView.as_view()),
     path('testcase/<int:id>', views.TestCaseDetailView.as_view(), name='testcase-details'),
+    path('testcase/<int:id>/comment', views.TestcaseCommentView.as_view(), name='testcase-comment'),
+    path('testcase/edit/comment/<int:id>', views.TestCaseCommentEditView.as_view(), name='edit-testcasecomment'),
+
 
     # Testcase Steps API
     path('testcase/<int:test_id>/steps', views.TestcaseStepView.as_view(), name='testcase-steps'),
@@ -42,7 +45,7 @@ urlpatterns = [
 
     # Utility API
     path('natCo-status', views.NatCoStatusView.as_view(), name='natCo-status'),
-    path('search/', views.SearchView.as_view(), name='search'),
+    path('search', views.SearchView.as_view(), name='search'),
     path('testcase/history/<int:id>', views.TestCaseHistory.as_view(), name="testcase-history"),
     path('excel', views.ExcelUploadView.as_view(), name='excel-upload'),
     path('get-excel', views.GetExcelView.as_view(), name='get-excel'),

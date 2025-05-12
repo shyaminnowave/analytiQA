@@ -5,13 +5,13 @@ from simple_history.utils import update_change_reason
 from apps.account.models import Account
 from apps.core.models import TestCaseModel, NatcoStatus, \
     TestCaseChoices, Comment, ScriptIssue, TestCaseScript, Tag, TestCaseHistoryModel
-from apps.stb.models import Natco, NatcoRelease
 from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from enum import Enum
 from apps.core.utlity import generate_history_message, generate_changed_fields
+from apps.general.utils import get_status_group
 # from apps.stb_tester.views import BaseAPI
 
 
@@ -56,65 +56,11 @@ class BulkFieldUpdateSerializer(serializers.Serializer):
         return True if instance else False
 
 
-
-class TestCaseHistorySerializer(serializers.Serializer):
-
-    history_id = serializers.IntegerField()
-    history_user = serializers.CharField()
-    history_change_reason = serializers.CharField()
-    history_date = serializers.DateTimeField()
-    changed_to = serializers.SerializerMethodField()
-
-    def get_created(self, obj):
-        data = datetime.fromisoformat(str(obj))
-        return data.strftime("%d-%m-%Y %I:%M %p")
-
-    def account_fullname(self, obj):
-        if obj:
-            _data = Account.objects.get(email=obj)
-            return _data.fullname
-        return None
-
-    def to_representation(self, instance):
-        represent = super().to_representation(instance)
-        represent['history_type'] = "Create" if instance.history_type == '+' else "Update" \
-            if instance.history_type == '~' else "Delete"
-        represent['changed_to'] = self.get_changed_to(instance)
-        represent['history_change_reason'] = instance.history_change_reason if instance.history_change_reason else "Other Changes"
-        represent['history_user'] = self.account_fullname(
-            instance.history_user
-        ) if instance.history_user else None
-        represent['history_date'] = self.get_created(instance.history_date)
-        return represent
-
-    def get_changed_to(self, obj):
-        try:
-            _instance = TestCaseModel.objects.get(id=obj.id)
-            history_records = list(_instance.history.filter(id=obj.id).order_by("history_date"))
-            curr_index = history_records.index(obj)
-            old_record = history_records[curr_index - 1] if curr_index > 0 else history_records[0]
-            new_obj = obj
-            if old_record:
-                delta = new_obj.diff_against(old_record)
-                print('delta', delta.changes)
-                differences = {
-                    change.field: f"changed from {change.old} to {change.new}"
-                    for change in delta.changes
-                    if change.old is not None and change.new is not None
-                }
-                return [{field: desc} for field, desc in differences.items()]
-        except ValueError as e:
-            logging.error(str(e))
-            raise serializers.ValidationError(str(e))
-        except TestCaseModel.DoesNotExists as n:
-            logging.error(str(n))
-            raise serializers.ValidationError(str(n))
-
 class TestCaseSerializerList(serializers.ModelSerializer):
 
     class Meta:
         model = TestCaseModel
-        fields = ('id', 'name', 'priority', 'testcase_type',
+        fields = ('id', 'name', 'jira_id', 'priority', 'testcase_type',
                   'status', 'automation_status')
 
 
@@ -179,20 +125,19 @@ class TestCaseSerializer(serializers.ModelSerializer):
     created = serializers.SerializerMethodField(required=False, read_only=True)
     modified = serializers.SerializerMethodField(required=False, read_only=True)
     # last_fifty_result = serializers.SerializerMethodField(required=False, read_only=True)
-    history_change_reason = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = TestCaseModel
         fields = ('id', 'name', 'jira_id', 'summary', 'description', 'status', 'priority',
                   'automation_status', 'testcase_type', 'created', 'modified', 'steps', 'tags',
-                  'created_by', 'history_change_reason')
+                  'created_by')
 
     def __init__(self, *args, **kwargs):
         request = kwargs['context']['request'] if 'context' in kwargs and 'request' in kwargs['context'] else None
         resolve_match = getattr(kwargs['context']['request'], 'resolver_match', None)
         if request and request.path == '/api/core/testcase':
             self.Meta.fields = ('id', 'name', 'summary', 'description', 'testcase_type', 'created', 'modified', 'tags',
-                                'status', 'automation_status', 'steps', 'history_change_reason')
+                                'status', 'automation_status', 'steps')
         if resolve_match.url_name == 'testcase-details':
             self.Meta.fields = '__all__'
         super().__init__(*args, **kwargs)
@@ -221,6 +166,10 @@ class TestCaseSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         message = None
         history_change_reason = validated_data.get('history_change_reason', message)
+        group = get_status_group(validated_data.get('automation_status', None))
+        if validated_data.get('assigned') is None and instance.assigned: return instance
+        if group is not None and instance.automation_status != validated_data.get('automation_status'):
+            validated_data['assigned'] = group.owner
         if history_change_reason is None:
             message = generate_history_message(instance, validated_data)
         try:
@@ -235,6 +184,7 @@ class TestCaseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         represent = super(TestCaseSerializer, self).to_representation(instance)
         represent['tags'] = [i.name for i in instance.tags.all()]
+        represent['created_by'] = instance.reporter
         return represent
 
 class StepsListSerializer(serializers.ModelSerializer):
@@ -298,19 +248,6 @@ class ExcelUploadSerializer(serializers.Serializer):
 
         return data
 
-class NavbarFilterSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Natco
-        fields = ('natco',)
-
-    # def to_representation(self, instance):
-    #     rep = super().to_representation(instance)
-    #     natco = rep.pop('natco')
-    #     return natco
-        # rep['manufacture'] = [i.name for i in instance.manufacture.all()]
-        # return {natco: {'device': rep['manufacture']}}
-
 
 class NatcoGraphAPISerializer(serializers.Serializer):
     natco = serializers.CharField(max_length=200, required=True)
@@ -364,69 +301,6 @@ class DistinctTestResultSerializer(serializers.Serializer):
         return obj['min_ram']
 
 
-class HistorySerializer(serializers.Serializer):
-
-    history_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    history_type = serializers.CharField()
-    history_change_reason = serializers.CharField()
-    history_user = serializers.CharField()
-    history_date = serializers.DateTimeField()
-    changed_to = serializers.SerializerMethodField()
-
-    def get_changed_to(self, obj):
-        try:
-            # Retrieve the TestCaseModel instance by ID
-            _instance = TestCaseModel.objects.get(id=obj.id)
-            # Fetch all historical records, filtering by type if needed
-            history_records = list(_instance.history.filter(history_type='~').order_by('history_date'))
-            # Locate the current record's position in the historical timeline
-            current_index = history_records.index(obj)
-            if current_index == 0:
-                return ["Natco status changed"]  # No previous records to compare
-
-            # Compare current record to the previous one
-            old_record = history_records[current_index - 1] if current_index > 0 else None
-            new_record = obj
-            delta = new_record.diff_against(old_record)
-
-            # Map changes, verifying data exists for both old and new states
-            differences = {
-                change.field: f"changed from '{change.old}' to '{change.new}'"
-                for change in delta.changes
-                if change.old is not None and change.new is not None
-            }
-
-            # If no differences are detected, return a message or empty list
-            if not differences:
-                differences["natco_status"] = "Natco status changed"
-
-            # Format differences as a list of dictionaries
-            return [{field: desc} for field, desc in differences.items()]
-
-        except (ValueError, TestCaseModel.DoesNotExist):
-            return ["Error retrieving change details"]
-
-    def get_created(self, obj):
-        data = datetime.fromisoformat(str(obj))
-        return data.strftime("%d-%m-%Y %I:%M %p")
-
-    def account_fullname(self, obj):
-        if obj:
-            _data = Account.objects.get(email=obj)
-            return _data.fullname
-        return None
-
-    def to_representation(self, instance):
-        represent = super().to_representation(instance)
-        represent['history_type'] = "Create" if instance.history_type == '+' else "Update" if instance.history_type == '~' else "Delete"
-        represent['changed_to'] = self.get_changed_to(instance)
-        represent['history_change_reason'] = instance.history_change_reason if instance.history_change_reason else "Natco status changed"
-        represent['history_user'] = self.account_fullname(
-            instance.history_user
-        ) if instance.history_user else None
-        represent['history_date'] = self.get_created(instance.history_date)
-        return represent
-
 
 class CommentSerializer(serializers.ModelSerializer):
 
@@ -437,12 +311,19 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'comments', 'created_by', 'created')
 
+    def get_instance(self):
+        _instance = {
+            "ScriptIssue": ScriptIssue,
+            "TestCaseModel": TestCaseModel
+        }
+        return _instance.get(self.context.get('instance'))
+
     def get_model_instance(self):
-        model_instance = ContentType.objects.get_for_model(ScriptIssue)
+        model_instance = ContentType.objects.get_for_model(self.get_instance())
         return model_instance
 
     def get_object_instance(self, id=id):
-        instance = get_object_or_404(ScriptIssue, pk=id)
+        instance = get_object_or_404(self.get_instance(), pk=id)
         return instance
 
     def get_created(self, obj):
@@ -468,6 +349,8 @@ class CommentSerializer(serializers.ModelSerializer):
         raise ScriptIssue.DoesNotExist("Object Does Not Exist")
 
     def update(self, instance, validated_data):
+        if instance.created_by != validated_data.get('created_by'):
+            raise serializers.ValidationError("You Cannot Edit Other Comments")
         if instance:
             instance.comments = validated_data.get('comments', instance.comments)
             instance.status = validated_data.get('status', instance.status)
@@ -597,6 +480,7 @@ class TestCaseScriptListSerializer(serializers.ModelSerializer):
             return 'Smoke'
         elif instance == 'soak':
             return 'Soak'
+        return None
 
 
     def to_representation(self, instance):
@@ -626,15 +510,6 @@ class TestcaseScriptSerializer(serializers.ModelSerializer):
         data = datetime.fromisoformat(str(obj.created))
         return data.strftime("%d-%m-%Y %I:%M %p")
     
-    def create(self, validated_data):
-        validated_data.pop('script_type')
-        type = TestCaseModel.objects.get(id=validated_data.pop('testcase'))
-        testscript = TestCaseScript.objects.create(
-            script_type=type.testcase_type,
-            **validated_data
-        )
-        return testscript
-
     def to_representation(self, instance):
         represent = super().to_representation(instance)
         resolve_match = getattr(self.context['request'], 'resolver_match', None)

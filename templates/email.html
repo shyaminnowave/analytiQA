@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activate Your Account</title>
+  <style type="text/css">
+    /* Reset styles */
+    body, p, h1, h2, h3, h4, h5, h6 {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      line-height: 1.4;
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
+    table {
+      border-collapse: separate;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+      width: 100%;
+    }
+    table td {
+      vertical-align: top;
+    }
+    /* iOS BLUE LINKS */
+    a[x-apple-data-detectors] {
+      color: inherit !important;
+      text-decoration: none !important;
+      font-size: inherit !important;
+      font-family: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+    }
+    /* MOBILE STYLES */
+    @media screen and (max-width: 600px) {
+      .img-max {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+      }
+      .max-width {
+        max-width: 100% !important;
+      }
+      .mobile-wrapper {
+        width: 85% !important;
+        max-width: 85% !important;
+      }
+      .mobile-padding {
+        padding-left: 5% !important;
+        padding-right: 5% !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f6f9fc;">
+  <!-- Email Body -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="min-width: 100%; background-color: #f6f9fc;">
+    <tr>
+      <td align="center" valign="top">
+        <!-- Email Header -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" class="max-width">
+          <tr>
+            <td align="center" valign="top" style="padding: 30px 0;">
+              <!-- Company Logo -->
+              <img src="https://via.placeholder.com/200x50" alt="Company Logo" width="200" height="50" style="display: block; border: 0; max-width: 200px;">
+            </td>
+          </tr>
+        </table>
+        <!-- Email Content -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);" class="max-width">
+          <tr>
+            <td align="center" valign="top" style="padding: 40px 30px 20px 30px;" class="mobile-padding">
+              <h1 style="color: #333333; font-size: 24px; font-weight: bold; margin: 0; margin-bottom: 15px;">Activate Your Account</h1>
+              <p style="color: #666666; font-size: 16px; line-height: 24px; margin: 0; margin-bottom: 25px;">
+                Thank you for signing up! Please confirm your email address to get full access to your account.
+              </p>
+              <p style="color: #666666; font-size: 16px; line-height: 24px; margin: 0; margin-bottom: 25px;">
+                Your verification code is: <strong style="color: #333333; font-size: 18px;">{{ .Token }}</strong>
+              </p>
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" bgcolor="#5046e5" style="border-radius: 4px;">
+                            <button type="submit" style="display: inline-block; padding: 16px 36px; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 4px; background-color: #5046e5; font-weight: bold;">
+                                Activate Account
+                            </button>
+
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <p style="color: #666666; font-size: 16px; line-height: 24px; margin: 25px 0 0 0;">
+                If the button above doesn't work, you can also click on the link below or copy it to your browser:
+              </p>
+              <p style="color: #666666; font-size: 14px; line-height: 24px; margin: 10px 0 0 0; word-break: break-all;">
+                <a href="{{ .ConfirmationURL }}" style="color: #5046e5; text-decoration: underline;">{{ .ConfirmationURL }}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" valign="top" style="padding: 0 30px 40px 30px;" class="mobile-padding">
+              <p style="color: #666666; font-size: 14px; line-height: 20px; margin: 25px 0 0 0;">
+                If you didn't create an account, you can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+        </table>
+        <!-- Email Footer -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" class="max-width">
+          <tr>
+            <td align="center" valign="top" style="padding: 30px 0;">
+              <p style="color: #8898aa; font-size: 12px; line-height: 18px; margin: 0 0 10px 0;">
+                © 2025 Your Company. All rights reserved.
+              </p>
+              <p style="color: #8898aa; font-size: 12px; line-height: 18px; margin: 0;">
+                123 Main St, Anytown, ST 12345
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+

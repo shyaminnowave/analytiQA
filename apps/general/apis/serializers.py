@@ -7,7 +7,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ('message', 'status')
+        fields = ('message', 'status', 'get_absolute_url')
 
     def to_representation(self, instance):
         represent = super().to_representation(instance)

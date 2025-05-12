@@ -33,11 +33,11 @@ class STBManufacture(TimeStampedModel):
         verbose_name_plural = 'STB Manufactures'
 
 
-class Natco(TimeStampedModel):
+class NatCo(TimeStampedModel):
 
     country = models.CharField(max_length=200)
     natco = models.CharField(max_length=10)
-    manufacture = models.ManyToManyField(STBManufacture, blank=True, related_name='devices')
+    manufacture = models.ForeignKey(STBManufacture, blank=True, on_delete=models.CASCADE, related_name='devices')
     language = models.ManyToManyField(Language, blank=True, related_name='languages')
     history = HistoricalRecords()
 
@@ -45,6 +45,8 @@ class Natco(TimeStampedModel):
         return '%s' % self.natco
 
     class Meta:
+        verbose_name = 'Natcos'
+        verbose_name_plural = 'Natcos'
         permissions = [
             ("view_natco_option", "Can View natco Option List")
         ]
@@ -75,7 +77,7 @@ class NatcoRelease(TimeStampedModel):
         MAJOR = 'MR', _('MR')
         PATCH = "PAT", _('PAT')
 
-    natcos = models.ForeignKey(Natco, on_delete=models.CASCADE, related_name='release')
+    natcos = models.ForeignKey(NatCo, on_delete=models.CASCADE, related_name='release')
     release_type = models.CharField(choices=ReleaseType.choices, max_length=20, help_text="MR - Major Release")
     build_type = models.CharField(max_length=200, default='', blank=True, null=True)
     build_version = models.CharField(max_length=200, blank=True, null=True)
@@ -98,12 +100,11 @@ class NatcoRelease(TimeStampedModel):
 class STBNodeConfig(TimeStampedModel):
 
     stb_node = models.ForeignKey(STBNode, on_delete=models.CASCADE)
-    natco = models.ForeignKey(NatcoRelease, on_delete=models.CASCADE, max_length=255, default='')
+    natco = models.CharField(max_length=200)
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.natco.natcos.natco} {self.natco.release_type} {self.natco.version} A{self.natco.android_version} -" \
-               f" {self.stb_node.node_id}"
+        return f"{self.stb_node} - {self.natco}"
 
     class Meta:
         verbose_name = 'STB Node Configs'

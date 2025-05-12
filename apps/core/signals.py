@@ -4,11 +4,11 @@ from django.dispatch import receiver
 from apps.core.models import TestCaseModel, NatcoStatus, ScriptIssue, AutomationChoices, TestCaseScript, TestCaseHistoryModel
 from apps.general.models import Notification
 from apps.stb.admin import LanguageAdmin
-from apps.stb.models import Natco
+from apps.stb.models import NatCo
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from apps.general.utils import get_status_group
 from django.contrib.contenttypes.models import ContentType
-
 
 logging = logging.getLogger(__name__)
 
@@ -67,7 +67,6 @@ def send_notification(sender, instance, created, **kwargs):
             If Instance.History is None, Then its the First Instance
             """
             _prev = _lst.other_changes.get('assigned', None)
-            print(_prev)
             if _prev != instance.assigned:
                 Notification.objects.create(
                     message=f"Testcase ID {instance.id} is assigned to you by {instance.created_by.get_full_name()}",
@@ -95,6 +94,29 @@ def send_notification(sender, instance, created, **kwargs):
         logging.error(str(e))
 
 
+@receiver(post_save, sender=TestCaseModel)
+def send_notification_group(sender, instance, created, **kwargs):
+    try:
+        _lst = TestCaseHistoryModel.objects.filter(testcase=instance).first()
+        group = get_status_group(instance.automation_status)
+        if _lst.automation_status == group.status: return 
+        if instance.automation_status and group:
+            owner = group.owner
+            Notification.objects.create(
+                message=f"Testcase ID {instance.id} Status is now in {instance.automation_status}",
+                user=instance.created_by,
+                content_type=ContentType.objects.get_for_model(instance),
+                object_id = instance.id,
+                status = True,
+                assigned_to=group.owner,
+            )
+            return None
+        else:
+            return None
+    except Exception as e:
+        logging.error(str(e))
+        return None
+
 
 @receiver(post_save, sender=TestCaseModel)
 def save_natCostas(sender, instance, created, **kwargs):
@@ -108,23 +130,22 @@ def save_natCostas(sender, instance, created, **kwargs):
             logging.info(f"NactCoStatus already exists for Testcase {instance}")
             return
 
-        natCo_list = Natco.objects.prefetch_related('manufacture', 'language')
+        natCo_list = NatCo.objects.prefetch_related('manufacture', 'language')
         status_entries = []
 
         for i in natCo_list:
-            manufactures = i.manufacture.all()  # Get related manufactures
+              # Get related manufactures
             languages = i.language.all()
-            for manufacture in manufactures:
-                for language in languages:
-                    status_entries.append(
-                        NatcoStatus(
-                            test_case=instance,
-                            natco=i,
-                            language=language.language_name,
-                            device=manufacture.name,
-                            user=current_user.user,
-                        )
+            for language in languages:
+                status_entries.append(
+                    NatcoStatus(
+                        test_case=instance,
+                        natco=i,
+                        language=language.language_name,
+                        device=i.manufacture.name,
+                        user=current_user.user,
                     )
+                )
         if status_entries:
             with transaction.atomic():
                 NatcoStatus.objects.bulk_create(status_entries)
@@ -171,3 +192,4 @@ def change_natcoStatus(sender, instance, created, **kwargs):
         return 
     except Exception as e:
         logging.error(str(e))
+

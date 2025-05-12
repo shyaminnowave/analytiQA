@@ -30,7 +30,8 @@ urlpatterns = [
     path('api/core/', include('apps.core.apis.urls')),
     path('api/general/', include('apps.general.apis.urls')),
     path("__debug__/", include("debug_toolbar.urls")),
-    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    # re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

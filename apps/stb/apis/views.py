@@ -1,10 +1,13 @@
-from apps.stb.models import Language, STBManufacture, Natco, NatcoRelease
+import logging
+from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, STBNode, STBNodeConfig
 from apps.stb.apis.serializers import LanguageSerializer, STBManufactureSerializer, NactoSerializer, \
     NatcoOptionSerializer, LanguageOptionSerializer, DeviceOptionSerializer, NatcoReleaseInfo
 from apps.core.pagination import CustomPagination
 from analytiQA.helpers import custom_generics as c
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+
+logger = logging.getLogger(__name__)
 
 class LanguageListView(c.CustomListCreateAPIView):
 
@@ -13,7 +16,7 @@ class LanguageListView(c.CustomListCreateAPIView):
     pagination_class = CustomPagination
     
     def get(self, request, *args, **kwargs):
-        return super(LanguageListView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class LanguageDetailView(c.CustomRetrieveUpdateDestroyAPIView):
@@ -50,13 +53,13 @@ class NatCoAPIView(c.CustomListCreateAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        return Natco.objects.prefetch_related('manufacture', 'language')
+        return NatCo.objects.prefetch_related('manufacture', 'language')
 
 
 class NatCoDetailAPIView(c.CustomRetrieveUpdateDestroyAPIView):
 
     def get_object(self):
-        queryset = get_object_or_404(Natco, pk=self.kwargs.get('pk'))
+        queryset = get_object_or_404(NatCo, pk=self.kwargs.get('pk'))
         return queryset
 
     serializer_class = NactoSerializer
@@ -64,7 +67,7 @@ class NatCoDetailAPIView(c.CustomRetrieveUpdateDestroyAPIView):
 
 class NatCoOptionView(c.OptionAPIView):
 
-    queryset = Natco.objects.only('id', 'natco')
+    queryset = NatCo.objects.only('id', 'natco')
     serializer_class = NatcoOptionSerializer
 
 
@@ -75,7 +78,7 @@ class LanguageOptionView(c.OptionAPIView):
     def get_queryset(self):
         if not self.request.GET.get('natCo'):
             return Language.objects.only('id', 'language_name')
-        natCo = Natco.objects.get(natco=self.request.GET.get('natCo'))
+        natCo = NatCo.objects.get(natco=self.request.GET.get('natCo'))
         return natCo.language.all()
 
 
@@ -86,7 +89,7 @@ class DeviceOptionView(c.OptionAPIView):
     def get_queryset(self):
         if not self.request.GET.get('natCo'):
             return STBManufacture.objects.only('id', 'name')
-        natCo = Natco.objects.get(natco=self.request.GET.get('natCo'))
+        natCo = NatCo.objects.get(natco=self.request.GET.get('natCo'))
         return natCo.manufacture.all()
 
 

@@ -2,6 +2,7 @@ import os
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db.models import Q
 from apps.core.models import (TestCaseModel, TestCaseStep, NatcoStatus, Comment, ScriptIssue, TestCaseScript, Tag, TestCaseHistoryModel)
 from apps.core.apis.serializers import (
     TestCaseSerializerList,
@@ -13,8 +14,6 @@ from apps.core.apis.serializers import (
     CommentSerializer,
     TestcaseScriptSerializer,
     TestCaseScriptListSerializer,
-    HistorySerializer,
-    TestCaseHistorySerializer,
     ScriptIssueList,
     TagSerializer,
     TestCaseStepSerializer,
@@ -22,6 +21,7 @@ from apps.core.apis.serializers import (
     IssuesListSerializer,
     TestCaseHistoryModelSerializer
 )
+from django.core.files.storage import default_storage
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from apps.core.pagination import CustomPagination, CustomPageNumberPagination
@@ -36,6 +36,8 @@ from rest_framework import serializers
 from rest_framework.views import APIView
 from django.http import HttpResponse
 from apps.core.excel import TestCaseExl
+from apps.core.tasks import process_excel
+from apps.core.permissions import TestCaseUpdatePermission, CommentPermission
 #########################################################################
 
 
@@ -59,7 +61,7 @@ from apps.core.excel import TestCaseExl
 class BulkFieldUpdateView(generics.GenericAPIView):
 
     def __init__(self, **kwargs):
-        self.response_fromat = ResponseInfo().response
+        self.response_format = ResponseInfo().response
         super(BulkFieldUpdateView, self).__init__(**kwargs)
 
     serializer_class = BulkFieldUpdateSerializer
@@ -207,7 +209,6 @@ class TestCaseDetailView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
             "request": self.request
         }
 
-
 class TestcaseStepView(cgenerics.CustomRetriveAPIVIew):
 
     authentication_classes = [JWTAuthentication, ]
@@ -279,7 +280,9 @@ class TestcaseStepDetailView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
                 self.response_format['message'] = response.errors
                 return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
         except serializers.ValidationError as err:
-            default_error = {key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()}
+            default_error = {
+                key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()
+            }
             self.response_format['status'] = False
             self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
             self.response_format['data'] = 'Error'
@@ -343,6 +346,7 @@ class TestCaseNatcoList(generics.ListAPIView):
         try:
             if serializer:
                 return self.get_paginated_response(serializer.data)
+            return None
         except Exception as e:
             return Response({"success": False, "data": str(e)})
 
@@ -395,12 +399,29 @@ class ExcelUploadView(APIView):
     serializer_class = ExcelUploadSerializer
     authentication_classes = [JWTAuthentication, SessionAuthentication]
 
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super().__init__(**kwargs)
+
     def post(self, request, *args, **kwargs):
-        upload_type = request.data.get("uploadtype", None)
-        match upload_type:
-            case 'testcase':
-                instance = TestCaseExl(file=request.FILES.get('file'), request=request).import_data()
-        return Response(instance)
+        try:
+            upload_type = request.data.get("uploadtype", None)
+            file_name = default_storage.save(f'temp_uploads/{upload_type}.xlsx', request.data.get("file"))
+            file_path = default_storage.path(file_name)
+            match upload_type:
+                case 'testcase':
+                    instance = process_excel.delay(file_path, "shyam6132@gmail.com")
+            self.response_format['status'] = True
+            self.response_format['status_code'] = status.HTTP_200_OK
+            self.response_format['data'] = "Excel Will Upload Shortly"
+            self.response_format['message'] = "Success"
+            return Response(self.response_format, status=status.HTTP_200_OK)
+        except Exception as err:
+            self.response_format['status'] = False
+            self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
+            self.response_format['data'] = 'Error'
+            self.response_format['message'] = str(err)
+            return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetExcelView(APIView):
@@ -424,39 +445,6 @@ class GetExcelView(APIView):
 
         return HttpResponse("Invalid Request", status=400)
     
-
-@extend_schema(
-    summary="Retrieve History of Test Case Changes",
-    description=(
-        "This endpoint retrieves the change history for a specific test case identified by its ID.\n\n"
-        "The response contains a list of historical entries, "
-        "with each entry showing the changes made to the test case.\n"
-        "Only entries with a non-null `changed_to` field are included in the response."
-    ),
-    tags=["TestCase Module APIS"]
-)
-class HistoryView(generics.GenericAPIView):
-
-    def __init__(self, **kwargs) -> None:
-        self.response_format = ResponseInfo().response
-        super().__init__(**kwargs)
-
-    serializer_class = HistorySerializer
-
-    def get_queryset(self):
-        queryset = TestCaseModel.objects.get(id=self.kwargs.get('id'))
-        return queryset.history.filter(history_type="~")
-
-    def get(self, request, *args, **kwargs):
-        print(self.get_queryset())
-        serializer = self.get_serializer(self.get_queryset(), many=True)
-
-        self.response_format["status"] = True
-        self.response_format["status_code"] = status.HTTP_200_OK
-        self.response_format["data"] = serializer.data
-        self.response_format["message"] = "Success"
-        return Response(self.response_format, status=status.HTTP_200_OK)
-
 
 @extend_schema(
     summary="Retrieve and Create Script Issues",
@@ -526,6 +514,7 @@ class ScriptIssueDetailView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
 class CommentEditView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
 
     serializer_class = CommentSerializer
+    permission_classes = [CommentPermission, ]
 
     def get_object(self):
         queryset = Comment.objects.select_related('created_by').get(id=self.kwargs['pk'])
@@ -653,7 +642,9 @@ class TestCaseHistory(generics.GenericAPIView):
                 self.response_format['message'] = "No data Found"
                 return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
         except serializers.ValidationError as err:
-            default_error = {key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()}
+            default_error = {
+                key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()
+            }
             self.response_format['status'] = False
             self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
             self.response_format['data'] = 'Error'
@@ -673,8 +664,52 @@ class SearchView(generics.ListAPIView):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        _instance = TestCaseModel.objects.filter(tags__name__exact=self.request.GET.get('tags'))
-        return _instance
+        name = self.request.query_params.get('name', None)
+        tags = self.request.query_params.get('tags', None)
+        jira_id = self.request.query_params.get('jira_id', None).split('-')[1] if self.request.query_params.get('jira_id') else None
+        query = Q()
+        if name:
+            query |= Q(name__icontains=name)
+        if tags:
+            query |= Q(tags__name__icontains=tags)
+        if jira_id:
+            query |= Q(jira_id__icontains=jira_id)
+        return TestCaseModel.objects.filter(query).distinct()
+
+
+class SearchTags(generics.ListAPIView):
+
+    serializer_class = TestCaseSerializerList
+    pagination_class = CustomPagination
+
+    
+class TestcaseCommentView(cgenerics.CustomListCreateAPIView):
+
+    serializer_class = CommentSerializer
+    
+    def get_queryset(self):
+        queryset = Comment.objects.filter(object_id=self.kwargs.get('id'))
+        return queryset
+
+    def get_serializer_context(self):
+        return {
+            "object_id": self.kwargs.get('id', None),
+            "instance": 'TestCaseModel'
+        }
+    
+    def post(self, request, *args, **kwargs):
+        self.response_format["message"] = "New Comment Added"
+        return super().post(request, *args, **kwargs)
+    
+
+class TestCaseCommentEditView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
+
+    serializer_class = CommentSerializer
+    permission_classes = [CommentPermission, ]
+
+    def get_object(self):
+        queryset = Comment.objects.select_related('created_by').get(id=self.kwargs['id'])
+        return queryset
     
 
 class CommentCreateView(cgenerics.CustomCreateAPIView):
@@ -683,7 +718,9 @@ class CommentCreateView(cgenerics.CustomCreateAPIView):
 
     def get_serializer_context(self):
         return {
-            "object_id": self.kwargs.get('id', None)
+            "object_id": self.kwargs.get('id', None),
+            "instance": "ScriptIssue"
+            
         }
     
     def post(self, request, *args, **kwargs):

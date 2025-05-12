@@ -326,24 +326,22 @@ class GroupUsers(cgenerics.CustomRetriveAPIVIew):
 
 class UserActivateView(APIView):
 
-    def post(self, request, *args, **kwargs):
-        token = request.data.get('token')
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
         try:
-            user_instance = get_object_or_404(User, email=request.data.get('email'))
+            user_instance = get_object_or_404(User, username=kwargs.get('slug'))
             if user_instance:
-                check_token = user_token_generator(user_instance, token)
+                check_token = user_token_generator.check_token(user_instance, token)
                 if check_token:
                     user_instance.is_active = True
                     user_instance.save()
-                    return Response("User Activated")
-                return Response("Token Error")
+                    return Response({'success': True, 'data': "User Activated"})
+                return Response({'success': False, 'data': "Invalid token"})
             else:
-                return Response("no instance")
-        except Http404 as e:
-            logging.error(str(e))
-            return Response("func error")
+                return Response({'success': False, 'data': "User Activaton Failed"})
         except Exception as e:
             logging.error(str(e))
+            return Response({'success': False, 'data': "User Activation Failed"})
 
 
 @extend_schema(
