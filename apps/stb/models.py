@@ -45,6 +45,8 @@ class NatCo(TimeStampedModel):
         return '%s' % self.natco
 
     class Meta:
+        verbose_name = 'Natcos'
+        verbose_name_plural = 'Natcos'
         permissions = [
             ("view_natco_option", "Can View natco Option List")
         ]
@@ -98,12 +100,11 @@ class NatcoRelease(TimeStampedModel):
 class STBNodeConfig(TimeStampedModel):
 
     stb_node = models.ForeignKey(STBNode, on_delete=models.CASCADE)
-    natco = models.ForeignKey(NatcoRelease, on_delete=models.CASCADE, max_length=255, default='')
+    natco = models.CharField(max_length=200)
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.natco.natcos.natco} {self.natco.release_type} {self.natco.version} A{self.natco.android_version} -" \
-               f" {self.stb_node.node_id}"
+        return f"{self.stb_node} - {self.natco}"
 
     class Meta:
         verbose_name = 'STB Node Configs'

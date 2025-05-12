@@ -10,7 +10,6 @@ from django.shortcuts import get_object_or_404
 from apps.general.utils import get_status_group
 from django.contrib.contenttypes.models import ContentType
 
-
 logging = logging.getLogger(__name__)
 
 

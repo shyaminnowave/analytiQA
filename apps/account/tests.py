@@ -40,7 +40,7 @@ class UserCreationViewTestCase(TestCase):
 
     def setUp(self) -> None:
         self.client = APIClient()
-        self.createuser = reverse('account:create-user')
+        self.createuser = reverse('account:sign-up')
 
     def test_create_userView(self):
         user_data = {
@@ -61,7 +61,7 @@ class UserCreationViewTestCase(TestCase):
             "fullname": "shyam",
         }
         response = self.client.post(self.createuser, data=user_data)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_worng_password(self):
         user_data = {
@@ -71,7 +71,7 @@ class UserCreationViewTestCase(TestCase):
             "fullname": "shyam",
         }
         response = self.client.post(self.createuser, data=user_data)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_wrong_confirm_password(self):
         user_data = {
@@ -81,7 +81,7 @@ class UserCreationViewTestCase(TestCase):
             "fullname": "shyam",
         }
         response = self.client.post(self.createuser, data=user_data)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_wrong_firstname(self):
         user_data = {
@@ -91,7 +91,7 @@ class UserCreationViewTestCase(TestCase):
             "fullname": "shyam2",
         }
         response = self.client.post(self.createuser, data=user_data)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginTestCase(TestCase):
@@ -99,7 +99,7 @@ class UserLoginTestCase(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
         self.login = reverse('account:login')
-        self.create = reverse('account:create-user')
+        self.create = reverse('account:sign-up')
 
     def test_login_user(self):
         user_data = {
