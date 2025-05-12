@@ -23,6 +23,7 @@ class NotificationView(APIView):
     def get(self, request, *args, **kwargs):
         if request.GET.get("action") == 'clear':
             self.get_queryset().update(is_read=True)
+            cache.clear()
         cache_data = cache.get('notification_cache')
         if cache_data:
             return Response({
