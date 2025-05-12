@@ -19,9 +19,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1']
+DEBUG = True if os.environ.get('DEBUG') else False
+ALLOWED_HOSTS = []
 
+if ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOSTS'))
 
 CORS_ALLOWED_ORIGINS = [os.environ.get('CORS_ALLOWED_ORIGINS')]
 CORS_ORIGIN_ALLOW_ALL= True if os.environ.get('CORS_ORIGIN_ALLOW_ALL') == '1' else False
@@ -99,21 +101,14 @@ WSGI_APPLICATION = 'analytiQA.wsgi.application'
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / 'db.sqlite3',
+        "ENGINE": os.environ.get('DATABASE_ENGINE'),
+        "NAME": os.environ.get('NAME'),
+        "USER": os.environ.get('USERNAME'),
+        "PASSWORD": os.environ.get('PASSWORD'),
+        "HOST": os.environ.get('HOST'),
+        "PORT": os.environ.get('PORT'),
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": os.environ.get('DATABASE_ENGINE'),
-#         "NAME": os.environ.get('NAME'),
-#         "USER": os.environ.get('USERNAME'),
-#         "PASSWORD": os.environ.get('PASSWORD'),
-#         "HOST": os.environ.get('HOST'),
-#         "PORT": os.environ.get('PORT'),
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -182,7 +177,7 @@ INTERNAL_IPS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://redis:6379/0',
+        'LOCATION': os.environ.get('CACHE_LOCATION'),
         'TIMEOUT': 60 * 60 * 5, # 5 Hours
     }
 }
