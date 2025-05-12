@@ -184,7 +184,7 @@ class TestCaseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         represent = super(TestCaseSerializer, self).to_representation(instance)
         represent['tags'] = [i.name for i in instance.tags.all()]
-        represent['created_by'] = instance.reporter
+        represent['created_by'] = instance.reporter if instance.reporter else instance.created_by.fullname
         return represent
 
 class StepsListSerializer(serializers.ModelSerializer):
