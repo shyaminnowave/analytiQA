@@ -1,4 +1,5 @@
-from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease
+import logging
+from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, STBNode, STBNodeConfig
 from apps.stb.apis.serializers import LanguageSerializer, STBManufactureSerializer, NactoSerializer, \
     NatcoOptionSerializer, LanguageOptionSerializer, DeviceOptionSerializer, NatcoReleaseInfo
 from apps.core.pagination import CustomPagination
@@ -6,6 +7,7 @@ from analytiQA.helpers import custom_generics as c
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 
+logger = logging.getLogger(__name__)
 
 class LanguageListView(c.CustomListCreateAPIView):
 

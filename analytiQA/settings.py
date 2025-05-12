@@ -168,26 +168,31 @@ SPECTACULAR_SETTINGS = {
 
 INTERNAL_IPS = [
     # ...
-    os.environ.get("INTERNAL_IPS")
+    "127.0.0.1"
     # ...
 ]
 
 # Cache
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': "django.core.cache.backends.redis.RedisCache",
-#         'LOCATION': 'redis://localhost:6379/1',
-#         'TIMEOUT': 60 * 60 * 5, # 5 Hours
-#         'OPTIONS': {
-#             'CLIENT_CLASS": "django_redis.client.DefaultClient',
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.environ.get('CACHE_LOCATION'),
+        'TIMEOUT': 60 * 60 * 5, # 5 Hours
+    }
+}
 
 # Celery Configuration Options
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_TIMEZONE = 'Asia/Kolkata'
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+
+CELERY_BEAT_SCHEDULE = {
+    "get_stb_node_info" : {
+        "task": "apps.stb.tasks.get_stb_node_info",
+        "schedule": crontab(hour="*/3")
+    }
+}
 
 LOGGING = {
     "version": 1,
