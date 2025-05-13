@@ -1,17 +1,14 @@
 import logging
 import requests
 from celery import shared_task
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-
 from apps.stb.models import STBNode, STBNodeConfig
 
 logger = logging.getLogger(__name__)
 
 @shared_task
 def get_stb_node_info():
-    """
-    lhg3t_DsH46Z3S-AV_F3AUKDhV2kmth2
-    """
     print('Inside get_stb_node_info')
     try:
         response = requests.get(
@@ -25,14 +22,17 @@ def get_stb_node_info():
         _data = response.json()
         for key in _data:
             get_instance = get_object_or_404(STBNode, node_id=key['id'])
+            print(get_instance if get_instance else None)
             if get_instance:
-                get_node_config = get_object_or_404(STBNodeConfig, stb_node=get_instance)
-                if get_node_config and get_node_config.natco != key['friendly_name']:
-                    get_node_config.natco = key['friendly_name']
-                    get_node_config.save()
-                elif get_node_config is None:
+                try:
+                    get_node_config = get_object_or_404(STBNodeConfig, stb_node=get_instance)
+                    if get_node_config and get_node_config.natco != key['friendly_name']:
+                        get_node_config.is_active = False
+                        get_node_config.save()
+                        STBNodeConfig.objects.create(stb_node=get_instance, natco=key['friendly_name'])
+                except Http404:
                     STBNodeConfig.objects.create(
-                        stb_node=get_instance.stb_node,
+                        stb_node=get_instance,
                         natco=key['friendly_name'],
                     )
             logger.error('No Node Present')
