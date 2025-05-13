@@ -101,6 +101,7 @@ class STBNodeConfig(TimeStampedModel):
 
     stb_node = models.ForeignKey(STBNode, on_delete=models.CASCADE)
     natco = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
 
     def __str__(self):
