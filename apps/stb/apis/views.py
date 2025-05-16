@@ -89,8 +89,8 @@ class DeviceOptionView(c.OptionAPIView):
     def get_queryset(self):
         if not self.request.GET.get('natCo'):
             return STBManufacture.objects.only('id', 'name')
-        natCo = NatCo.objects.get(natco=self.request.GET.get('natCo'))
-        return natCo.manufacture.all()
+        devices = STBManufacture.objects.filter(devices__natco=self.request.GET.get('natCo'))
+        return devices
 
 
 class NatcoInfoView(generics.ListCreateAPIView):
