@@ -469,9 +469,12 @@ class ScriptIssueSerializer(serializers.ModelSerializer):
 
 class TestCaseScriptListSerializer(serializers.ModelSerializer):
 
+    build_testcase = serializers.SerializerMethodField()
+
     class Meta:
         model = TestCaseScript
-        fields = ('id', 'script_name', 'script_location', 'natCo', 'language', 'device', 'script_type')
+        fields = ('id', 'script_name', 'script_location', 'natCo', 'language', 'device', 'script_type', 
+                  'build_testcase')
 
     def get_script_type(self, instance):
         if instance == 'performance':
@@ -481,6 +484,9 @@ class TestCaseScriptListSerializer(serializers.ModelSerializer):
         elif instance == 'soak':
             return 'Soak'
         return None
+    
+    def get_build_testcase(self, obj):
+        return obj.get_testcase_name()
 
 
     def to_representation(self, instance):

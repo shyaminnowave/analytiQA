@@ -64,6 +64,7 @@ class TestCaseScript(TimeStampedModel):
     testcase = models.ForeignKey('TestCaseModel', on_delete=models.SET_NULL, blank=True, null=True,
                                  related_name='testcase_script')
     script_name = models.CharField(max_length=200, default='',)
+    function_name = models.CharField(max_length=200, default='',)
     script_location = models.URLField(max_length=400)
     script_type = models.CharField(choices=TestCaseChoices.choices, max_length=20)
     natCo = models.ForeignKey(NatCo, on_delete=models.SET_NULL, null=True, blank=True, related_name='natCo_script')
@@ -80,7 +81,16 @@ class TestCaseScript(TimeStampedModel):
     description = models.TextField(default='')
 
     def __str__(self):
-        return f"{self.testcase.id} - {self.testcase.name}: {self.script_name}"
+        return f"{self.testcase}: {self.script_name}"
+
+    def get_testcase_name(self):
+        if self.function_name and self.script_location:
+            get_testpack_loctaion = re.search(r'/tests/(.*)', self.script_location)
+            get_name = f"{get_testpack_loctaion.group(0)}::{self.function_name}"
+            print(get_name)
+            return get_name
+        else:
+            return None
 
     class Meta:
         verbose_name = 'TestCase Script'
@@ -91,6 +101,7 @@ class TestCaseScript(TimeStampedModel):
             instance = TestCaseModel.objects.get(id=self.testcase.id)
             self.script_type = instance.testcase_type
         super().save(**kwargs)
+
 
 class TestCaseModel(TimeStampedModel):
 
@@ -310,7 +321,7 @@ class TestCaseJobId(TimeStampedModel):
 
     job_id = models.CharField(max_length=255)
     testscript = models.ForeignKey(TestCaseScript, on_delete=models.CASCADE, related_name='job_id')
-    comments = GenericRelation("Comment", related_name='job_comments')
+    comments = GenericRelation("Comment", related_name='job_comments', blank=True, null=True)
 
     def __str__(self):
         return self.job_id

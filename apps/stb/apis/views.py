@@ -1,11 +1,13 @@
 import logging
-from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, STBNode, STBNodeConfig
+from rest_framework.views import APIView, Response
+from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, STBNode, STBNodeConfig, STBToken, STBUrl
 from apps.stb.apis.serializers import LanguageSerializer, STBManufactureSerializer, NactoSerializer, \
     NatcoOptionSerializer, LanguageOptionSerializer, DeviceOptionSerializer, NatcoReleaseInfo
 from apps.core.pagination import CustomPagination
 from analytiQA.helpers import custom_generics as c
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from apps.stb.stbtester import STBClient
 
 logger = logging.getLogger(__name__)
 
@@ -98,3 +100,16 @@ class NatcoInfoView(generics.ListCreateAPIView):
     pagination_class = CustomPagination
     serializer_class = NatcoReleaseInfo
     queryset = NatcoRelease.objects.all()
+
+
+class STBRunnerAPIView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        stb = STBClient()
+        runner = stb.run_testcase_by_name(
+            node_id = request.data.get('node_id'),
+            test_cases = request.data.get('test_cases'),
+            test_pack_revision = request.data.get('test_pack_revision'),
+            remote_control = request.data.get('remote_control')
+        )
+        return Response(runner)

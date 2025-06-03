@@ -1,5 +1,4 @@
 FROM python:3.12-slim-bullseye
-
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
@@ -26,5 +25,7 @@ COPY . .
 # Accept and set build-time environment variables from GitHub Actions
 
 RUN python manage.py migrate
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
 EXPOSE 8000

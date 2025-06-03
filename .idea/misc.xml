@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="qa-prod" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="venv" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="qa_prod" project-jdk-type="Python SDK" />
 </project>

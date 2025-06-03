@@ -638,9 +638,9 @@ class TestCaseHistory(generics.GenericAPIView):
                 return Response(self.response_format, status=status.HTTP_200_OK)
             else:
                 self.response_format['status'] = False
-                self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
+                self.response_format['status_code'] = status.HTTP_404_NOT_FOUND
                 self.response_format['message'] = "No data Found"
-                return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
+                return Response(self.response_format, status=status.HTTP_404_NOT_FOUND)
         except serializers.ValidationError as err:
             default_error = {
                 key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()
