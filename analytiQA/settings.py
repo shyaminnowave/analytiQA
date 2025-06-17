@@ -16,18 +16,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = "django-insecure-_m0rc09s$wa@4^6snye)o2=l(e-gf00g1zwry5aq_pl4b7ic3t"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') else False
-ALLOWED_HOSTS = []
+DEBUG = True
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
-if ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOSTS'))
+# if ALLOWED_HOSTS:
+#     ALLOWED_HOSTS.append(os.environ.get('ALLOWED_HOSTS'))
 
-CORS_ALLOWED_ORIGINS = [os.environ.get('CORS_ALLOWED_ORIGINS')]
-CORS_ORIGIN_ALLOW_ALL= True if os.environ.get('CORS_ORIGIN_ALLOW_ALL') == '1' else False
-CORS_ALLOW_CREDENTIALS =  True if os.environ.get('CORS_ALLOW_CREDENTIALS') == '1' else False
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ORIGIN_ALLOW_ALL= True 
+CORS_ALLOW_CREDENTIALS =  True
 
 # Application definition
 
@@ -100,15 +100,22 @@ WSGI_APPLICATION = 'analytiQA.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get('DATABASE_ENGINE'),
-        "NAME": os.environ.get('NAME'),
-        "USER": os.environ.get('USERNAME'),
-        "PASSWORD": os.environ.get('PASSWORD'),
-        "HOST": os.environ.get('HOST'),
-        "PORT": os.environ.get('PORT'),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": os.environ.get('DATABASE_ENGINE'),
+#         "NAME": os.environ.get('NAME'),
+#         "USER": os.environ.get('USERNAME'),
+#         "PASSWORD": os.environ.get('PASSWORD'),
+#         "HOST": os.environ.get('HOST'),
+#         "PORT": os.environ.get('PORT'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -177,20 +184,24 @@ INTERNAL_IPS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.environ.get('CACHE_LOCATION'),
+        'LOCATION': 'redis://redis:6379/0',
         'TIMEOUT': 60 * 60 * 5, # 5 Hours
     }
 }
 
 # Celery Configuration Options
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_BROKER_URL = 'redis://redis:6379/1'
 CELERY_TIMEZONE = 'Asia/Kolkata'
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
 
 CELERY_BEAT_SCHEDULE = {
     "get_stb_node_info" : {
         "task": "apps.stb.tasks.get_stb_node_info",
-        "schedule": crontab(hour="*/3")
+        "schedule": crontab(minute="*/1")
+    },
+    "get_testcase_result" : {
+        "task": "apps.stb.tasks.get_testcase_result",
+        "schedule": crontab(minute="*/1")
     }
 }
 

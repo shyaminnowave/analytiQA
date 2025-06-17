@@ -1,9 +1,9 @@
 import logging
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from apps.core.models import TestCaseModel, NatcoStatus, ScriptIssue, AutomationChoices, TestCaseScript, TestCaseHistoryModel
+from apps.core.models import TestCaseModel, NatcoStatus, ScriptIssue, AutomationChoices, TestCaseScript, \
+    TestCaseHistoryModel
 from apps.general.models import Notification
-from apps.stb.admin import LanguageAdmin
 from apps.stb.models import NatCo
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -57,7 +57,6 @@ def set_notification(sender, instance, created, **kwargs):
             logging.error(str(e))
 
 
-
 @receiver(post_save, sender=TestCaseModel)
 def send_notification(sender, instance, created, **kwargs):
     try:
@@ -72,8 +71,8 @@ def send_notification(sender, instance, created, **kwargs):
                     message=f"Testcase ID {instance.id} is assigned to you by {instance.created_by.get_full_name()}",
                     user=instance.created_by,
                     content_type=ContentType.objects.get_for_model(instance),
-                    object_id = instance.id,
-                    status = True,
+                    object_id=instance.id,
+                    status=True,
                     assigned_to=instance.assigned,
                 )
         elif instance and instance.assigned:
@@ -82,8 +81,8 @@ def send_notification(sender, instance, created, **kwargs):
                     message=f"Testcase ID {instance.id} is assigned to you by {instance.created_by.get_full_name()}",
                     user=instance.created_by,
                     content_type=ContentType.objects.get_for_model(instance),
-                    object_id = instance.id,
-                    status = True,
+                    object_id=instance.id,
+                    status=True,
                     assigned_to=instance.assigned,
                 )
             except Exception as e:
@@ -99,15 +98,15 @@ def send_notification_group(sender, instance, created, **kwargs):
     try:
         _lst = TestCaseHistoryModel.objects.filter(testcase=instance).first()
         group = get_status_group(instance.automation_status)
-        if _lst.automation_status == group.status: return 
+        if _lst.automation_status == group.status: return
         if instance.automation_status and group:
             owner = group.owner
             Notification.objects.create(
                 message=f"Testcase ID {instance.id} Status is now in {instance.automation_status}",
                 user=instance.created_by,
                 content_type=ContentType.objects.get_for_model(instance),
-                object_id = instance.id,
-                status = True,
+                object_id=instance.id,
+                status=True,
                 assigned_to=group.owner,
             )
             return None
@@ -123,7 +122,7 @@ def save_natCostas(sender, instance, created, **kwargs):
     try:
         if instance.automation_status == AutomationChoices.NOT_AUTOMATABLE:
             return
-        
+
         current_user = TestCaseHistoryModel.objects.filter(testcase=instance).first()
 
         if NatcoStatus.objects.filter(test_case=instance).exists():
@@ -134,7 +133,7 @@ def save_natCostas(sender, instance, created, **kwargs):
         status_entries = []
 
         for i in natCo_list:
-              # Get related manufactures
+            # Get related manufactures
             languages = i.language.all()
             for language in languages:
                 status_entries.append(
@@ -154,7 +153,6 @@ def save_natCostas(sender, instance, created, **kwargs):
             logging.warning(f"No valid NatcoStatus entries to create for TestCase {instance.id}")
     except Exception as e:
         logging.error(f"Error in save_natCostas: {str(e)}")
-
 
 
 @receiver(post_save, sender=ScriptIssue)
@@ -182,14 +180,14 @@ def change_natcoStatus(sender, instance, created, **kwargs):
     try:
         if created:
             get_natco_instance = NatcoStatus.objects.get(
-                            test_case=instance.testcase,
-                            natco=instance.natCo.natco,
-                            device=instance.device.name,
-                            language=instance.language.language_name
+                test_case=instance.testcase,
+                natco=instance.natCo.natco,
+                device=instance.device.name,
+                language=instance.language.language_name
             )
             get_natco_instance.applicable = True
             get_natco_instance.save()
-        return 
+        return
     except Exception as e:
         logging.error(str(e))
 

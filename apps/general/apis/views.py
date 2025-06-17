@@ -24,22 +24,24 @@ class NotificationView(APIView):
         if request.GET.get("action") == 'clear':
             self.get_queryset().update(is_read=True)
             cache.clear()
-        cache_data = cache.get('notification_cache')
+
+        cache_data = cache.get(f'{request.user}_notification_cache')
+        print(cache_data if cache_data else None)
         if cache_data:
             return Response({
                 "data": cache_data,
                 "status": status.HTTP_200_OK,
                 "success": True,
-                "message": "Notification has been cleared.",
+                "message": "success",
                 "count": len(cache_data)
             }, status=status.HTTP_200_OK)
         serializer = NotificationSerializer(self.get_queryset(), many=True)
-        cache.set('notification_cache', serializer.data, timeout=60 * 15)
+        cache.set(f'{request.user}_notification_cache', serializer.data, timeout=60 * 15)
         response_format = {
             "data": serializer.data,
             "status": status.HTTP_200_OK,
             "success": True,
-            "message": "Notification has been cleared.",
+            "message": "success",
             "count": len(serializer.data)
         }
         return Response(response_format, status=status.HTTP_200_OK)

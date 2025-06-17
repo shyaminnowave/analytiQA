@@ -1,9 +1,11 @@
 import os
+import logging
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Q
-from apps.core.models import (TestCaseModel, TestCaseStep, NatcoStatus, Comment, ScriptIssue, TestCaseScript, Tag, TestCaseHistoryModel)
+from apps.core.models import (TestCaseModel, TestCaseStep, NatcoStatus, Comment, ScriptIssue, TestCaseScript, Tag, \
+                              TestCaseHistoryModel)
 from apps.core.apis.serializers import (
     TestCaseSerializerList,
     TestCaseSerializer,
@@ -19,7 +21,7 @@ from apps.core.apis.serializers import (
     TestCaseStepSerializer,
     StepsListSerializer,
     IssuesListSerializer,
-    TestCaseHistoryModelSerializer
+    TestCaseHistoryModelSerializer,
 )
 from django.core.files.storage import default_storage
 from rest_framework.response import Response
@@ -39,6 +41,8 @@ from apps.core.excel import TestCaseExl
 from apps.core.tasks import process_excel
 from apps.core.permissions import TestCaseUpdatePermission, CommentPermission
 #########################################################################
+
+logging = logging.getLogger(__name__)
 
 
 @extend_schema(
@@ -547,8 +551,12 @@ class TestcaseScriptDetailView(cgenerics.CustomRetrieveUpdateDestroyAPIView):
     serializer_class = TestcaseScriptSerializer
 
     def get_object(self):
-        queryset = TestCaseScript.objects.select_related('natCo', 'language', 'device', 'developed_by',
-                                                         'modified_by', 'reviewed_by').get(id=self.kwargs.get('pk'))
+        try:
+            queryset = TestCaseScript.objects.select_related('natCo', 'language', 'device', 'developed_by',
+                                                             'modified_by', 'reviewed_by').get(id=self.kwargs.get('pk'))
+        except Exception as e:
+            logging.error(str(e))
+            return None
         return queryset
 
 
@@ -638,9 +646,9 @@ class TestCaseHistory(generics.GenericAPIView):
                 return Response(self.response_format, status=status.HTTP_200_OK)
             else:
                 self.response_format['status'] = False
-                self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
+                self.response_format['status_code'] = status.HTTP_404_NOT_FOUND
                 self.response_format['message'] = "No data Found"
-                return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
+                return Response(self.response_format, status=status.HTTP_404_NOT_FOUND)
         except serializers.ValidationError as err:
             default_error = {
                 key: value[0] if isinstance(value, list) else value for key, value in err.detail.items()

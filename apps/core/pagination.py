@@ -1,3 +1,4 @@
+import math
 from rest_framework.views import Response
 from rest_framework.pagination import PageNumberPagination
 from collections import OrderedDict
@@ -11,7 +12,7 @@ class CustomPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         response = super().get_paginated_response(data)
-        page_count = response.data.get('count') // self.page_size
+        page_count = math.ceil(response.data.get('count') / self.page_size)
         return Response(OrderedDict([
             ('count', self.page.paginator.count),
             ('next', response.data.get('next')),

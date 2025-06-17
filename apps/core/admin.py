@@ -2,8 +2,10 @@ from django.contrib import admin
 from django.urls import path, reverse
 from django.db import models
 from django.shortcuts import render, redirect
+
+from apps.core.apis.views import TestCaseHistory
 from apps.core.models import TestCaseModel, TestCaseStep, NatcoStatus, \
-                                TestCaseScript, Comment, ScriptIssue, Tag, TestPlan
+                                TestCaseScript, Comment, ScriptIssue, Tag, TestPlan, TestCaseHistoryModel
 from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ExportMixin, ImportExportModelAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -154,9 +156,15 @@ class TestPlanAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'name']
     filter_horizontal = ('testcases',)
+
+
+@admin.register(TestCaseScript)
+class TestcaseScriptAdmin(admin.ModelAdmin):
+
+    list_display = ['id', 'script_name', 'language', 'device', 'natCo']
     
 # admin.site.register(TestCaseModel, TestCaseModelAdmin)
 admin.site.register(NatcoStatus, NatcoStatusAdmin)
-admin.site.register(TestCaseScript)
 admin.site.register(Comment)
 admin.site.register(TestCaseStep, ImportExportModelAdmin)
+admin.site.register(TestCaseHistoryModel)

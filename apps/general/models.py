@@ -30,6 +30,10 @@ class Status(TimeStampedModel):
         self.name = self.name.lower()
         super().save(**kwargs)
 
+    class Meta:
+        verbose_name = 'Status'
+        verbose_name_plural = 'Status'
+
 
 class StatusGroup(TimeStampedModel):
 
@@ -44,7 +48,7 @@ class StatusGroup(TimeStampedModel):
     def get_status(self):
         lst = [i.name for i in self.status.all()]
         return lst
-
+    
 
 
 class Notification(TimeStampedModel):
