@@ -21,34 +21,22 @@ class APIError(Exception):
 @dataclass
 class APIClient:
 
-    base_url: str
-    headers: str
-
-    @property
-    def get_headers(self):
-        return self.headers
-
     def make_request(self, method, endpoint=None, params=None, data=None, headers=None):
-        if endpoint:
-            url = urljoin(self.base_url, endpoint) 
-        else:
-            url = self.base_url
-        request_headers = {**self.get_headers(), **(headers or {})}
-
+        request_headers = headers
         logger = logging.getLogger(__name__)
-        logger.debug(f"Making {method} request to {url}")
+        logger.debug(f"Making {method} request to {endpoint}")
         try:
-            response = requests.request(method, url, params=params, data=data, headers=request_headers)
+            response = requests.request(method, endpoint, params=params, data=data, headers=request_headers)
             return response
         except ConnectionError as e:
             logger.error(str(e))
             return None
 
     def get(self, endpoint=None, params=None, headers=None):
-        return self.make_request('GET', endpoint, params, headers)
+        return self.make_request('GET', endpoint=endpoint, params=params, headers=headers)
 
     def post(self, endpoint=None, params=None, data=None, headers=None):
-        return self.make_request('POST', endpoint, params, data, headers)
+        return self.make_request('POST', endpoint=endpoint, params=params, data=data, headers=headers)
 
 
 class STBRepository:
@@ -100,7 +88,7 @@ class STBClient:
         self.logger = logging.getLogger(__name__)
         self.baseurl = baseurl
         self.headers = headers
-        # self.client = 
+        self.client = APIClient()
 
     def build_results_url(self, testscript, date=None):
         """
@@ -115,10 +103,10 @@ class STBClient:
             return f'results?filter=testcase:{testscript}&sort=date:asc'
 
     def get_results(self, testscript, date=None):
-        endpoint = self.build_results_url(testscript, date=date)
+        endpoint = f"{self.baseurl}{self.build_results_url(testscript, date=date)}"
         try:
             self.logger.info(f"Fetching results for testcase {testscript}")
-            response = self.client.get(endpoint)
+            response = self.client.get(endpoint, headers=self.headers)
 
             if response.status_code == 200:
                 return response.json()
@@ -140,21 +128,28 @@ class STBClient:
         except Exception as e:
             self.logger.error(f"Unexpected error: {str(e)}")
             raise APIError(f"Unexpected error: {str(e)}")
-        
-    
-    def get_stb_mode_info(self):
-        try:
-            self.logger.info(f"Fetching STB node info details")
-            response = self.client.get()
-        except Exception as e:
-            pass
 
+    def get_stb_node_info(self):
+        try:
+            response = self.client.get(endpoint=self.baseurl, headers=self.headers)
+            if response.status_code == 200:
+                result = response.json()
+                self.logger.info(f"Run test result: {result}")
+                return result
+            elif response.status_code in [400, 403, 500]:
+                self.logger.warning(f"Access forbidden")
+                return None
+        except APIError as e:
+            self.logger.error(f"API Error: {e.message}, Status: {e.status_code}")
+            raise
+        except Exception as e:
+            raise APIError(f"Unexpected error: {str(e)}")
 
     def get_testcase_names(self, branch):
         endpoint = f"test_pack/{branch}/test_case_names"
         try:
             self.logger.info(f"Fetching testcase names for branch: {branch}")
-            response = self.client.get(endpoint)
+            response = self.client.get(endpoint, headers=self.headers)
             if response.status_code == 200:
                 data = response.json()
                 test_cases = data if isinstance(data, list) else data.get("test_cases", [])
@@ -188,7 +183,6 @@ class STBClient:
         }
         if node_id and test_cases and remote_control and test_pack_revision:
             response = self.client.post(endpoint, data=json.dumps(_data))
-            print(response)
             if response.status_code == 200 or response.status_code == 201:
                 result = response.json()
                 self.logger.info(f"Run test result: {result}")

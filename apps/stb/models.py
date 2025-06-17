@@ -5,7 +5,6 @@ from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
-
 User = get_user_model()
 
 
@@ -74,6 +73,10 @@ class NatCoFirmware(TimeStampedModel):
     def __str__(self):
         return '%s' % self.name
 
+    class Meta:
+        verbose_name = 'Natco Firmware'
+        verbose_name_plural = 'Natco Firmware'
+
 
 class NatcoRelease(TimeStampedModel):
 
@@ -87,18 +90,28 @@ class NatcoRelease(TimeStampedModel):
     build_version = models.CharField(max_length=200, blank=True, null=True)
     version = models.CharField(max_length=20, default='', blank=True, null=True)
     firmware = models.ForeignKey(NatCoFirmware, on_delete=models.CASCADE, related_name='releases')
+    friendly_name = models.CharField(max_length=200, blank=True, null=True)
     android_version = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.natcos.natco} {self.release_type} - {self.version}"
+        return f"{self.natcos.natco} {self.release_type} - {self.android_version}"
 
-    def get_natco_fullname(self):
+    def get_natCo_fullname(self):
         return f"{self.natcos.natco} {self.release_type}{self.version} {self.firmware} {self.android_version}"
     
 
     class Meta:
-        verbose_name = 'Natco Releases'
-        verbose_name_plural = 'Natco Releases'
+        verbose_name = 'NatCo Releases'
+        verbose_name_plural = 'NatCo Releases'
+
+
+class STBNodeMapping(TimeStampedModel):
+
+    stb_node = models.ForeignKey(STBNode, on_delete=models.CASCADE, related_name='mappings')
+    natcos = models.ForeignKey(NatCo, on_delete=models.CASCADE, related_name='natcos')
+
+    def __str__(self):
+        return f"{self.natcos} - {self.stb_node.node_id}"
 
 
 class STBNodeConfig(TimeStampedModel):
@@ -112,14 +125,25 @@ class STBNodeConfig(TimeStampedModel):
         return f"{self.stb_node} - {self.natco}"
 
     class Meta:
-        verbose_name = 'STB Node Configs'
-        verbose_name_plural = 'STB Node Configs'
+        verbose_name = 'STB NodeConfigs'
+        verbose_name_plural = 'STB NodeConfigs'
 
 
 class STBUrl(TimeStampedModel):
 
     name = models.CharField(max_length=200, unique=True)
     endpoint = models.URLField(max_length=400)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class StbApi(TimeStampedModel):
+
+    name = models.CharField(max_length=200, unique=True)
+    url = models.URLField(max_length=400)
+    headers = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

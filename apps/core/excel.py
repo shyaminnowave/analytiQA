@@ -1,14 +1,11 @@
-from celery import shared_task
 from django.contrib.contenttypes.models import ContentType
 from openpyxl import load_workbook
-from apps.account.models import Account
 from apps.core.models import (
     TestCaseModel,
     Tag
 )
 from apps.core.utlity import QuerySetEntry
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from apps.general.models import Notification
 from collections import defaultdict

@@ -2,7 +2,8 @@ import logging
 from rest_framework.views import APIView, Response
 from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, STBNode, STBNodeConfig, STBToken, STBUrl
 from apps.stb.apis.serializers import LanguageSerializer, STBManufactureSerializer, NactoSerializer, \
-    NatcoOptionSerializer, LanguageOptionSerializer, DeviceOptionSerializer, NatcoReleaseInfo
+    NatcoOptionSerializer, LanguageOptionSerializer, DeviceOptionSerializer, NatcoReleaseOptionSerializer, \
+    NatcoReleaseInfo
 from apps.core.pagination import CustomPagination
 from analytiQA.helpers import custom_generics as c
 from django.shortcuts import get_object_or_404
@@ -93,6 +94,12 @@ class DeviceOptionView(c.OptionAPIView):
             return STBManufacture.objects.only('id', 'name')
         devices = STBManufacture.objects.filter(devices__natco=self.request.GET.get('natCo'))
         return devices
+
+
+class NatCoReleaseOptionView(c.OptionAPIView):
+
+    queryset = NatcoRelease.objects.all()
+    serializer_class = NatcoReleaseOptionSerializer
 
 
 class NatcoInfoView(generics.ListCreateAPIView):

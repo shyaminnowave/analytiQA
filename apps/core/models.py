@@ -1,5 +1,7 @@
 import re
 import json
+
+from celery.worker.strategy import default
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
@@ -68,6 +70,8 @@ class TestCaseScript(TimeStampedModel):
     script_location = models.URLField(max_length=400)
     script_type = models.CharField(choices=TestCaseChoices.choices, max_length=20)
     natCo = models.ForeignKey(NatCo, on_delete=models.SET_NULL, null=True, blank=True, related_name='natCo_script')
+    job_ids = models.JSONField()
+    supported_natcos = models.ManyToManyField(NatcoRelease, blank=True, null=True, related_name='supported_natcos')
     language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True,
                                  related_name='script_language')
     device = models.ForeignKey(STBManufacture, on_delete=models.SET_NULL, null=True, blank=True,
@@ -86,9 +90,10 @@ class TestCaseScript(TimeStampedModel):
     def get_testcase_name(self):
         if self.function_name and self.script_location:
             get_testpack_loctaion = re.search(r'/tests/(.*)', self.script_location)
-            get_name = f"{get_testpack_loctaion.group(0)}::{self.function_name}"
-            print(get_name)
-            return get_name
+            if get_testpack_loctaion:
+                get_name = f"{get_testpack_loctaion.group(0)}::{self.function_name}"
+                return get_name
+            return None
         else:
             return None
 
@@ -317,14 +322,14 @@ class Comment(TimeStampedModel):
         return f"{self.comments[:20]}..."
 
 
-class TestCaseJobId(TimeStampedModel):
-
-    job_id = models.CharField(max_length=255)
-    testscript = models.ForeignKey(TestCaseScript, on_delete=models.CASCADE, related_name='job_id')
-    comments = GenericRelation("Comment", related_name='job_comments', blank=True, null=True)
-
-    def __str__(self):
-        return self.job_id
+# class TestCaseJobId(TimeStampedModel):
+#
+#     job_id = models.CharField(max_length=255)
+#     testscript = models.ForeignKey(TestCaseScript, on_delete=models.CASCADE, related_name='job_ids')
+#     comments = GenericRelation("Comment", related_name='job_comments', blank=True, null=True)
+#
+#     def __str__(self):
+#         return self.job_id
     
     
 class TestPlan(TimeStampedModel):

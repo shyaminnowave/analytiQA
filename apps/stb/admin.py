@@ -1,6 +1,6 @@
 from django.contrib import admin
 from apps.stb.models import Language, STBManufacture, NatCo, STBNode, STBNodeConfig,  \
-    NatcoRelease, STBUrl, STBToken, StbResult
+    NatcoRelease, STBUrl, STBToken, StbResult, StbApi, NatCoFirmware
 from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ImportExportModelAdmin
 # Register your models here.
@@ -32,6 +32,8 @@ class NatcoReleaseAdmin(SimpleHistoryAdmin, ImportExportModelAdmin):
 
 admin.site.register(STBNode, ImportExportModelAdmin)
 admin.site.register(STBNodeConfig, ImportExportModelAdmin)
+admin.site.register(NatCoFirmware)
 admin.site.register(STBToken)
 admin.site.register(STBUrl)
 admin.site.register(StbResult)
+admin.site.register(StbApi)

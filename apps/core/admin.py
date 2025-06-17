@@ -156,10 +156,15 @@ class TestPlanAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'name']
     filter_horizontal = ('testcases',)
+
+
+@admin.register(TestCaseScript)
+class TestcaseScriptAdmin(admin.ModelAdmin):
+
+    list_display = ['id', 'script_name', 'language', 'device', 'natCo']
     
 # admin.site.register(TestCaseModel, TestCaseModelAdmin)
 admin.site.register(NatcoStatus, NatcoStatusAdmin)
-admin.site.register(TestCaseScript)
 admin.site.register(Comment)
 admin.site.register(TestCaseStep, ImportExportModelAdmin)
 admin.site.register(TestCaseHistoryModel)

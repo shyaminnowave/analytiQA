@@ -4,8 +4,6 @@ from celery import shared_task
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from pluggy import _result
-
 from apps.stb.models import STBNode, STBNodeConfig, StbResult
 from apps.core.models import TestCaseScript
 from apps.stb.stbtester import STBClient
@@ -15,15 +13,15 @@ logger = logging.getLogger(__name__)
 @shared_task
 def get_stb_node_info():
     try:
-        response = requests.get(
-            url="https://innowave.stb-tester.com/api/_private/workgroup?ref=HEAD",
-            headers={
+        response = STBClient(
+            baseurl="https://innowave.stb-tester.com/api/_private/workgroup?ref=HEAD",
+            headers = {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
-                "cookie": "stbt4=ghu_XRK5qZG1J3f3zcxT7ySqTocnH1Y04t2q1Tzf:shyaminnowave:cP8lgU5w6YX8k4N7lbK35Gv5EH0;"
+                "cookie": "stbt4=ghu_oNaUl88nh1pesOzp7woPZr224B1SUB0FJeqG:shyaminnowave:uDbIKZOqqSdCehbLRLQmtqSgIyE"
             }
         )
-        _data = response.json()
+        _data = response.get_stb_node_info()
         for key in _data:
             get_instance = get_object_or_404(STBNode, node_id=key['id'])
             print(get_instance if get_instance else None)
@@ -48,7 +46,9 @@ def get_stb_node_info():
 
 @shared_task()
 def get_testcase_result():
-    stb_client = STBClient()
+    stb_client = STBClient(baseurl='https://innowave.stb-tester.com/api/v2/', headers={
+        "Authorization": "token zvqu7pcsalb-1uMs-oYnO1rmzTU2fz0-",
+    })
     testscripts = TestCaseScript.objects.values('script_name').distinct()
     _cached_result = {} 
     _results = []

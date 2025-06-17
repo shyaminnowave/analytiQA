@@ -1,5 +1,6 @@
 import re
 import logging
+from django.db import transaction
 from rest_framework import serializers
 from simple_history.utils import update_change_reason
 from apps.account.models import Account
@@ -9,7 +10,7 @@ from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from enum import Enum
+from django.db.models.signals import post_save
 from apps.core.utlity import generate_history_message, generate_changed_fields
 from apps.general.utils import get_status_group
 # from apps.stb_tester.views import BaseAPI
@@ -501,6 +502,8 @@ class TestCaseScriptListSerializer(serializers.ModelSerializer):
 class TestcaseScriptSerializer(serializers.ModelSerializer):
 
     scripts_issues = ScriptIssueList(many=True, read_only=True)
+    job_id  = serializers.ListField(child=serializers.CharField(), required=False, write_only=True)
+    job_ids = serializers.JSONField(read_only=True)
     created = serializers.SerializerMethodField(required=False, read_only=True)
     modified = serializers.SerializerMethodField(required=False, read_only=True)
 
@@ -522,6 +525,10 @@ class TestcaseScriptSerializer(serializers.ModelSerializer):
         represent['natCo'] = instance.natCo.natco if instance.natCo else None
         represent['language'] = instance.language.language_name if instance.language else None
         represent['device'] = instance.device.name if instance.device else None
+        represent['job_ids'] = [
+                                {**i, 'url': "http://demo.com"} for i in instance.job_ids
+                                ] if instance.job_ids else []
+        represent['supported_natcos'] = [i.__str__() for i in instance.supported_natcos.all()]
         if resolve_match.url_name == 'script-list':
             represent['developed_by'] = instance.developed_by.fullname if instance.developed_by else None
         else:
@@ -529,6 +536,28 @@ class TestcaseScriptSerializer(serializers.ModelSerializer):
             represent['reviewed_by'] = instance.reviewed_by.fullname if instance.reviewed_by else None
             represent['modified_by'] = instance.modified_by.fullname if instance.modified_by else None
         return represent
+
+    def create(self, validated_data):
+        ids = validated_data.pop('job_id', None)
+        job_ids = []
+        for i in range(len(ids)):
+            job_ids.append({
+                "id": i,
+                "job_id": ids[i],
+            })
+        validated_data['job_ids'] = job_ids
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        ids = validated_data.pop('job_id', None)
+        job_ids = []
+        for i in range(len(ids)):
+            job_ids.append({
+                "id": i,
+                "job_id": ids[i],
+            })
+        validated_data['job_ids'] = job_ids
+        return super().update(instance, validated_data)
 
 
 class TestCaseHistoryModelSerializer(serializers.ModelSerializer):
