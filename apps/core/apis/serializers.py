@@ -163,7 +163,6 @@ class TestCaseSerializer(serializers.ModelSerializer):
         _instance.tags.set(tags)
         return _instance
 
-
     def update(self, instance, validated_data):
         message = None
         history_change_reason = validated_data.get('history_change_reason', message)
