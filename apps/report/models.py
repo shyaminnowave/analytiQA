@@ -1,6 +1,6 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
-from apps.stb.models import Natco, NatcoRelease
+from apps.stb.models import NatCo, NatcoRelease
 from apps.core.models import TestCaseModel
 
 # Create your models here.

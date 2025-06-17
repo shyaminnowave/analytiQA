@@ -1,7 +1,8 @@
 from django.urls import path
 from apps.stb.apis.views import LanguageListView, LanguageDetailView, StbManufactureListView, \
     StbManufactureDetailView, NatCoAPIView, NatCoOptionView, LanguageOptionView, \
-    DeviceOptionView, NatCoDetailAPIView, NatcoInfoView
+    DeviceOptionView, NatCoDetailAPIView, NatcoInfoView, STBRunnerAPIView, NatCoReleaseOptionView
+
 
 app_name = 'stb'
 
@@ -16,11 +17,13 @@ urlpatterns = [
     path('stb-manufacture/<int:pk>', StbManufactureDetailView.as_view(), name='stb-detail'),
     path('natCo/<int:pk>', NatCoDetailAPIView.as_view(), name="natCo-detail"),
 
-    # NatcoRelease
+    # NatCoRelease
     path('natCo-release', NatcoInfoView.as_view()),
 
     # Option API endpoints
     path('natCo-option', NatCoOptionView.as_view(), name='natCo-option'),
     path('language-option', LanguageOptionView.as_view(), name='language-option'),
-    path('device-option', DeviceOptionView.as_view(), name='device-option')
+    path('device-option', DeviceOptionView.as_view(), name='device-option'),
+    path('natco-release', NatCoReleaseOptionView.as_view(), name='natco-release'),
+
 ]

@@ -1,8 +1,11 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django_extensions.db.models import TimeStampedModel
 from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
 # Create your models here.
+
+User = get_user_model()
 
 
 class Language(TimeStampedModel):
@@ -70,6 +73,10 @@ class NatCoFirmware(TimeStampedModel):
     def __str__(self):
         return '%s' % self.name
 
+    class Meta:
+        verbose_name = 'Natco Firmware'
+        verbose_name_plural = 'Natco Firmware'
+
 
 class NatcoRelease(TimeStampedModel):
 
@@ -83,18 +90,28 @@ class NatcoRelease(TimeStampedModel):
     build_version = models.CharField(max_length=200, blank=True, null=True)
     version = models.CharField(max_length=20, default='', blank=True, null=True)
     firmware = models.ForeignKey(NatCoFirmware, on_delete=models.CASCADE, related_name='releases')
+    friendly_name = models.CharField(max_length=200, blank=True, null=True)
     android_version = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.natcos.natco} {self.release_type} - {self.version}"
+        return f"{self.natcos.natco} {self.release_type} - {self.android_version}"
 
-    def get_natco_fullname(self):
+    def get_natCo_fullname(self):
         return f"{self.natcos.natco} {self.release_type}{self.version} {self.firmware} {self.android_version}"
     
 
     class Meta:
-        verbose_name = 'Natco Releases'
-        verbose_name_plural = 'Natco Releases'
+        verbose_name = 'NatCo Releases'
+        verbose_name_plural = 'NatCo Releases'
+
+
+class STBNodeMapping(TimeStampedModel):
+
+    stb_node = models.ForeignKey(STBNode, on_delete=models.CASCADE, related_name='mappings')
+    natcos = models.ForeignKey(NatCo, on_delete=models.CASCADE, related_name='natcos')
+
+    def __str__(self):
+        return f"{self.natcos} - {self.stb_node.node_id}"
 
 
 class STBNodeConfig(TimeStampedModel):
@@ -108,5 +125,82 @@ class STBNodeConfig(TimeStampedModel):
         return f"{self.stb_node} - {self.natco}"
 
     class Meta:
-        verbose_name = 'STB Node Configs'
-        verbose_name_plural = 'STB Node Configs'
+        verbose_name = 'STB NodeConfigs'
+        verbose_name_plural = 'STB NodeConfigs'
+
+
+class STBUrl(TimeStampedModel):
+
+    name = models.CharField(max_length=200, unique=True)
+    endpoint = models.URLField(max_length=400)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class StbApi(TimeStampedModel):
+
+    name = models.CharField(max_length=200, unique=True)
+    url = models.URLField(max_length=400)
+    headers = models.JSONField(default=dict)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class STBToken(TimeStampedModel):
+    name = models.CharField(max_length=200, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    access_token = models.CharField(max_length=400)
+
+    def __str__(self):
+        return self.name
+
+
+class StbResult(TimeStampedModel):
+
+    class ResultChoice(models.TextChoices):
+        PASS = 'pass', _('Pass')
+        FAIL = 'fail', _('Fail')
+        ERROR = 'error', _('Error')
+
+    result_id = models.CharField(max_length=255)
+    job_uid = models.CharField(max_length=255)
+    result_url = models.URLField()
+    triage_url = models.URLField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    script = models.ForeignKey('core.TestCaseScript', on_delete=models.CASCADE, blank=True, null=True)
+    result = models.CharField(choices=ResultChoice.choices, max_length=10)
+    failure_reason = models.TextField(default='', blank=True, null=True)
+
+    def __str__(self):
+        return self.result_id
+
+    def get_result(self):
+        return self.result[:20]
+
+    def get_start_date(self):
+        _start_time = str(self.start_time).split(' ')
+        _remove_gmt = _start_time[-1].split('+')
+        if _remove_gmt and _start_time:
+            _remove_gmt.pop()
+            _start_time.pop()
+        _start_time.extend(_remove_gmt)
+        return 'T'.join(_start_time)
+
+
+    def get_time(self, attr=None):
+        _time = None
+        if attr is None or attr == 'start_time':
+            _time = str(self.start_time).split(' ')
+        elif attr == 'end_time':
+            _time = str(self.end_time).split(' ')
+        _remove_gmt = _time[-1].split('+')
+        if _remove_gmt and _time:
+            _remove_gmt.pop()
+            _time.pop()
+        _time.extend(_remove_gmt)
+        return ' '.join(_time)

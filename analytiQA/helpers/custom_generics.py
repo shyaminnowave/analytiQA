@@ -95,7 +95,7 @@ class CustomCreateAPIView(mixins.CreateModelMixin, GenericAPIView):
         self.response_format = ResponseInfo().response
         super().__init__(**kwargs)
 
-    def post(self, request, i=None, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             response = super().create(request, *args, **kwargs)
             if response.status_code == status.HTTP_201_CREATED:

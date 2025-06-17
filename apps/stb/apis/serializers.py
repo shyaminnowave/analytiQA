@@ -102,6 +102,17 @@ class DeviceOptionSerializer(serializers.ModelSerializer):
         model = STBManufacture
         fields = ('id', 'name',)
 
+class NatcoReleaseOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NatcoRelease
+        fields = ('id', 'natcos')
+
+    def to_representation(self, instance):
+        represent = super(NatcoReleaseOptionSerializer, self).to_representation(instance)
+        represent['natcos'] = f"{instance.natcos.natco} - {instance.release_type} : {instance.android_version}"
+        return represent
+
 
 class NatcoFilterSerializerView(serializers.ModelSerializer):
 
