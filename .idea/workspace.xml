@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="serializers.py updated">
+    <list default="true" id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="Frontend Update">
       <change afterPath="$PROJECT_DIR$/analytiQA/helpers/utils.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/apps/general/notification_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/stb/migrations/0018_alter_historicalstbnodeconfig_options_and_more.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analytiQA/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/settings.py" afterDir="false" />
@@ -22,9 +23,9 @@
       <change beforePath="$PROJECT_DIR$/celerybeat-schedule" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/build/asset-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/asset-manifest.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/build/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/static/js/main.f0df888d.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.LICENSE.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/static/js/main.f0df888d.js.LICENSE.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/static/js/main.f0df888d.js.map" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -180,7 +181,7 @@
       <workItem from="1749713580246" duration="769000" />
       <workItem from="1750043668563" duration="12386000" />
       <workItem from="1750093063279" duration="311000" />
-      <workItem from="1750137927729" duration="38858000" />
+      <workItem from="1750137927729" duration="39189000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -326,7 +327,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750143652128</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Frontend Update">
+      <option name="closed" value="true" />
+      <created>1750307739078</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1750307739078</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -387,7 +396,8 @@
     <MESSAGE value="new feature updated" />
     <MESSAGE value="Frontend updated" />
     <MESSAGE value="serializers.py updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="serializers.py updated" />
+    <MESSAGE value="Frontend Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Frontend Update" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
