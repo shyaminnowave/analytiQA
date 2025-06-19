@@ -4,15 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="new feature updated">
+    <list default="true" id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="serializers.py updated">
       <change afterPath="$PROJECT_DIR$/analytiQA/helpers/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/general/notification_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analytiQA/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analytiQA/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/utlity.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/utlity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/general/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/celerybeat-schedule" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/asset-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/asset-manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.map" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +180,7 @@
       <workItem from="1749713580246" duration="769000" />
       <workItem from="1750043668563" duration="12386000" />
       <workItem from="1750093063279" duration="311000" />
-      <workItem from="1750137927729" duration="3040000" />
+      <workItem from="1750137927729" duration="38858000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <option name="closed" value="true" />
@@ -298,7 +310,23 @@
       <option name="project" value="LOCAL" />
       <updated>1750140102887</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Frontend updated">
+      <option name="closed" value="true" />
+      <created>1750141944320</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1750141944320</updated>
+    </task>
+    <task id="LOCAL-00018" summary="serializers.py updated">
+      <option name="closed" value="true" />
+      <created>1750143652128</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1750143652128</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -357,7 +385,23 @@
     <MESSAGE value="dockerfile and workflow file updated" />
     <MESSAGE value="workflow file updated" />
     <MESSAGE value="new feature updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="new feature updated" />
+    <MESSAGE value="Frontend updated" />
+    <MESSAGE value="serializers.py updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="serializers.py updated" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/general/apis/views.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/apps/general/apis/serializers.py</url>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/analytiQA$utils.coverage" NAME="utils Coverage Results" MODIFIED="1750049932885" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/analytiQA/helpers" />
