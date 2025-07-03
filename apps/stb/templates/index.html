@@ -1,0 +1,217 @@
+{% load rest_framework %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <title>Test Runner UI</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 0;
+      background-color: #f9f9f9;
+    }
+
+    .header {
+      background-color: #343a40;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-placeholder {
+      width: 140px;
+      height: 40px;
+      background-color: #6c757d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 5px;
+    }
+
+    .username {
+      font-size: 1rem;
+    }
+
+    .container {
+      padding: 30px;
+    }
+
+    .testcase-select {
+      height: 200px;
+    }
+
+    .form-required {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-placeholder text-white"><img src="{% static "media/innowave_icon.0f175a41a7db6d9f320e.png" %}"></div>
+    <div class="username">Welcome, <strong>shyam</strong></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Branch:</label>
+        <div class="input-group">
+          <select class="form-select" id="branch">
+          <option>
+              Select One Branch
+          </option>
+            {% for branch in branches %}
+                  <option value={{ branch }}>
+                      {{ branch }}
+                  </option>
+            {% endfor %}
+          </select>
+
+        </div>
+      </div>
+
+      <div class="col-md-6 text-end">
+        <label class="form-label fw-bold">Node:</label>
+        <select class="form-select d-inline-block w-auto" id="node">
+            {% for nodes in stb_nodes %}
+                {% if nodes.status == True %}
+                    <option value={{ nodes.node_id }}>🟢 {{ nodes.node_id }}</option>
+                {% else %}
+                    <option {{ nodes.node_id }}>🔴 {{ nodes.node_id }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <div class="mt-1">
+          <span class="badge bg-success">Ready</span>
+          <small>Last used by <strong>Shyamkumar</strong> • 3 hours ago</small>
+        </div>
+        <div class="mt-1 text-muted small">
+          Last test-job finished Today at 7:08 PM <a href="#">[Results]</a> • Job ran for 3 minutes
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Test pack:</label>
+      <div>
+        <a href="https://github.com/stb-tester/stb-tester-test-pack-innowave" target="_blank">
+          https://github.com/stb-tester/stb-tester-test-pack-innowave
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="testcases" class="form-label fw-bold">Testcases:</label>
+      <input type="text" class="form-control mb-2" placeholder="Filter testcases by substring">
+      <select id="testcases" class="form-select testcase-select" multiple>
+
+        <!-- Add more as needed -->
+      </select>
+      <div class="form-required">Required</div>
+    </div>
+
+    <!-- Run Test Button -->
+    <div class="text-end">
+      <button class="btn btn-primary" id="run-test">Run Test</button>
+    </div>
+
+      <div id="success-alert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+      ✅ Test started successfully!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+      var endpoint = "http://127.0.0.1:8000/api/stb/stb-testcases";
+
+      function get_testcase() {
+        var branch = $("#branch").val();  // Make sure your select has id="branch"
+        console.log("Selected branch:", branch);
+        if (branch === 'Select One Branch'){
+            console.log("This is the Default Branch Please Select Another")
+        }
+        $.ajax({
+          type: 'GET',
+          url: endpoint + "?branch=" + encodeURIComponent(branch),
+          success: function (data) {
+              console.log("Success:", data);
+
+                $('#testcases').empty();
+        data.forEach(function (testcase) {
+          $('#testcases').append(`<option value="${testcase}">${testcase}</option>`);
+        });
+          },
+          error: function (error) {
+              console.log("Error:", error)
+          }
+        });
+      }
+
+      function showSuccessAlert(message = "✅ Test started successfully!") {
+          const $alert = $('#success-alert');
+          $alert.removeClass('d-none');
+          $alert.html(`
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `);
+
+          // Auto-hide after 3 seconds
+          setTimeout(() => {
+            $alert.addClass('d-none');
+          }, 3000);
+        }
+
+      function run_testcase() {
+          var branch = $("#branch").val();
+          var node = $("#node").val();
+          var testcase = $("#testcases").val();
+
+          console.log(testcase)
+          $.ajax(
+              {
+                  url: "http://127.0.0.1:8000/api/stb/stb-run",
+                  type: "POST",
+                  contentType: "application/json",
+                   data: JSON.stringify({
+                        node_id: node,
+                        test_pack_revision: branch,
+                        test_cases: testcase,
+                        remote_control: "androidtv"
+                   }),
+                  headers: {
+                        "X-CSRFToken": $("meta[name=csrf-token]").attr("content")
+                  },
+                  success: function (data) {
+                    console.log("Test Started", data);
+                    if (data.status === 'Success') {
+                        showSuccessAlert();
+                    } else {
+                        showSuccessAlert("❌ Test failed to start!");
+                    }
+                  },
+              }
+          )
+      }
+   $(document).ready(function () {
+    console.log("jQuery DOM Ready");
+    $('#branch').on('change', get_testcase);
+    $('#run-test').on('click', run_testcase);
+  });
+</script>
+</body>
+</html>

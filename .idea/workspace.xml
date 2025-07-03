@@ -4,40 +4,99 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="serializers.py updated">
+    <list default="true" id="06281406-d2d3-40d6-8375-b4992872b143" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/analytiQA/helpers/utils.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/apps/general/notification_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analytiQA/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analytiQA/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0002_alter_scriptissue_options.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0003_tag_delete_testcaseexcelresult_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0004_remove_natcosupport_devices_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0005_alter_historicaltestcasemodel_steps_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0006_alter_historicaltestcasemodel_name_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0007_historicaltestcasemodel_assigned_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0008_alter_scriptissue_script.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0009_testplan.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0010_alter_historicaltestcasemodel_priority_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0011_alter_historicaltestcasemodel_created_by_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0012_historicaltestcasemodel_reporter_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0013_testcasehistorymodel_delete_historicaltestcasemodel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0014_alter_testcasehistorymodel_options_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0015_alter_testcasescript_script_location_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0016_alter_testcasescript_script_location.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0017_delete_historicaltestcasemodel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0018_historicaltestcasemodel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0019_testcasejobid_delete_historicaltestcasemodel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0020_alter_testcasemodel_options.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0021_alter_testcasehistorymodel_options.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0022_alter_comment_comments_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0023_testcasescript_function_name.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0024_alter_testcasejobid_testscript.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0025_testcasescript_job_ids_delete_testcasejobid.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/migrations/0026_testcasescript_supported_natcos.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/utlity.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/utlity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0002_userlogs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0003_delete_userlogs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0004_notification_assigned_to_alter_notification_user.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0005_notification_content_type_notification_status.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0006_notification_object_id.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0007_statusgroups.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0008_rename_statusgroups_statusgroup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0009_remove_statusgroup_group_statusgroup_name.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0010_status.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0011_remove_statusgroup_status_statusgroup_status.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0012_jobidcounter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0013_alter_statusgroup_status.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0014_alter_status_options.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/general/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/general/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/stb/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/stb/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/stb/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0002_natcorelease_firmware.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0003_natcorelease_build_version.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0004_alter_natcorelease_firmware.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0005_alter_natcorelease_release_type.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0006_natcofirmware_alter_natcorelease_firmware.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0007_historicalnatco_manufacture_remove_natco_manufacture_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0008_alter_historicalnatco_options.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0009_alter_historicalnatco_options_alter_natco_options_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0010_historicalstbnodeconfig_is_active_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0011_stbresults_stbtoken_stburl.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0012_delete_stbresults.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0013_stbresult.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0014_stbtoken_user.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0015_stbapi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0016_alter_natcorelease_options_stbnodemapping.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0017_natcorelease_friendly_name.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0018_alter_historicalstbnodeconfig_options_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/mixins.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/stb/stbtester.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/stbtester.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/celerybeat-schedule" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/asset-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/asset-manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/build/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.LICENSE.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/build/static/js/main.10bd48ea.js.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
-    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
-  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Dockerfile" />
+        <option value="HTML File" />
         <option value="Python Script" />
       </list>
     </option>
@@ -57,91 +116,33 @@
     &quot;accountId&quot;: &quot;889b6f5b-89ee-4995-96c1-2af3a7e3a021&quot;
   }
 }</component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/apps/core/apis/views.py" root0="SKIP_INSPECTION" />
-  </component>
   <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 3
 }</component>
-  <component name="ProjectId" id="2wgEQ3OZ04Pet52t4C2rWm5plgL" />
+  <component name="ProjectId" id="2yj9wbVlCKQOcvppnCQiMIDA0ij" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;Python.utils.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;in-dev&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Shyamkumar\Desktop\Innowave-prod\analytiQA-prod\frontend" />
-      <recent name="C:\Users\Shyamkumar\Desktop\Innowave-prod\analytiQA-prod\docker-file" />
+      <recent name="C:\Users\Shyamkumar\Desktop\inw-prod\analytiQA\apps\stb\templates" />
     </key>
-  </component>
-  <component name="RunManager" selected="Python.utils">
-    <configuration name="utils" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="analytiQA-prod" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/analytiQA/helpers" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/analytiQA/helpers/utils.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="analytiQA-prod" type="Python.DjangoServer" factoryName="Django server">
-      <module name="analytiQA-prod" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <option name="port" value="8000" />
-      <option name="host" value="localhost" />
-      <option name="additionalOptions" value="" />
-      <option name="browserUrl" value="" />
-      <option name="runTestServer" value="false" />
-      <option name="runNoReload" value="false" />
-      <option name="useCustomRunCommand" value="false" />
-      <option name="customRunCommand" value="" />
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.utils" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -154,256 +155,39 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f93d14d6-00c5-4906-88c0-e86daa569c63" name="Changes" comment="" />
-      <created>1746454800128</created>
+      <changelist id="06281406-d2d3-40d6-8375-b4992872b143" name="Changes" comment="" />
+      <created>1750337359368</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1746454800128</updated>
-      <workItem from="1746454802878" duration="707000" />
-      <workItem from="1746455586898" duration="11978000" />
-      <workItem from="1746548383769" duration="15080000" />
-      <workItem from="1746632293667" duration="10968000" />
-      <workItem from="1746688704273" duration="8073000" />
-      <workItem from="1746756148807" duration="5273000" />
-      <workItem from="1746771686312" duration="849000" />
-      <workItem from="1746774627669" duration="3221000" />
-      <workItem from="1747035788317" duration="3185000" />
-      <workItem from="1749007480766" duration="16709000" />
-      <workItem from="1749094840506" duration="11739000" />
-      <workItem from="1749402133146" duration="35000" />
-      <workItem from="1749403217171" duration="2859000" />
-      <workItem from="1749407717361" duration="234000" />
-      <workItem from="1749457295655" duration="10523000" />
-      <workItem from="1749539696420" duration="1487000" />
-      <workItem from="1749637465007" duration="8208000" />
-      <workItem from="1749698664785" duration="7945000" />
-      <workItem from="1749713580246" duration="769000" />
-      <workItem from="1750043668563" duration="12386000" />
-      <workItem from="1750093063279" duration="311000" />
-      <workItem from="1750137927729" duration="38858000" />
+      <updated>1750337359368</updated>
+      <workItem from="1750337364627" duration="2835000" />
+      <workItem from="1750389437808" duration="8548000" />
+      <workItem from="1750426315017" duration="7779000" />
+      <workItem from="1750474536150" duration="3581000" />
+      <workItem from="1750650349104" duration="20743000" />
+      <workItem from="1750743226305" duration="8982000" />
+      <workItem from="1750824913919" duration="10829000" />
+      <workItem from="1750866718925" duration="624000" />
+      <workItem from="1751475521213" duration="9278000" />
+      <workItem from="1751484973298" duration="1829000" />
     </task>
-    <task id="LOCAL-00001" summary="initial commit">
-      <option name="closed" value="true" />
-      <created>1746550802324</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1746550802324</updated>
-    </task>
-    <task id="LOCAL-00002" summary="tasks file mail instance updated">
-      <option name="closed" value="true" />
-      <created>1746550909013</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1746550909013</updated>
-    </task>
-    <task id="LOCAL-00003" summary=".gitingnore file updated">
-      <option name="closed" value="true" />
-      <created>1746551172796</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551172796</updated>
-    </task>
-    <task id="LOCAL-00004" summary=".gitingnore file updated">
-      <option name="closed" value="true" />
-      <created>1746551242800</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551242800</updated>
-    </task>
-    <task id="LOCAL-00005" summary=".gitingnore file updated">
-      <option name="closed" value="true" />
-      <created>1746551383613</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551383613</updated>
-    </task>
-    <task id="LOCAL-00006" summary="excel files deleted">
-      <option name="closed" value="true" />
-      <created>1746551468374</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551468374</updated>
-    </task>
-    <task id="LOCAL-00007" summary="excel files deleted">
-      <option name="closed" value="true" />
-      <created>1746551600947</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551600947</updated>
-    </task>
-    <task id="LOCAL-00008" summary=".gitignore file added">
-      <option name="closed" value="true" />
-      <created>1746551653125</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1746551653125</updated>
-    </task>
-    <task id="LOCAL-00009" summary=".gitignore file added">
-      <option name="closed" value="true" />
-      <created>1746585176844</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1746585176844</updated>
-    </task>
-    <task id="LOCAL-00010" summary=".gitignore file added">
-      <option name="closed" value="true" />
-      <created>1746585206445</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1746585206445</updated>
-    </task>
-    <task id="LOCAL-00011" summary="docker file added">
-      <option name="closed" value="true" />
-      <created>1746595046160</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1746595046160</updated>
-    </task>
-    <task id="LOCAL-00012" summary="dockerfile and workflow file updated">
-      <option name="closed" value="true" />
-      <created>1746597237109</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1746597237109</updated>
-    </task>
-    <task id="LOCAL-00013" summary="workflow file updated">
-      <option name="closed" value="true" />
-      <created>1746597357522</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1746597357522</updated>
-    </task>
-    <task id="LOCAL-00014" summary="workflow file updated">
-      <option name="closed" value="true" />
-      <created>1746604678989</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1746604678989</updated>
-    </task>
-    <task id="LOCAL-00015" summary="workflow file updated">
-      <option name="closed" value="true" />
-      <created>1746604827016</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1746604827016</updated>
-    </task>
-    <task id="LOCAL-00016" summary="new feature updated">
-      <option name="closed" value="true" />
-      <created>1750140102887</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1750140102887</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Frontend updated">
-      <option name="closed" value="true" />
-      <created>1750141944320</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1750141944320</updated>
-    </task>
-    <task id="LOCAL-00018" summary="serializers.py updated">
-      <option name="closed" value="true" />
-      <created>1750143652128</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1750143652128</updated>
-    </task>
-    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="RECENT_FILTERS">
-      <map>
-        <entry key="Branch">
-          <value>
-            <list>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="origin/main" />
-                </option>
-              </RecentGroup>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="main" />
-                </option>
-              </RecentGroup>
-            </list>
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="origin/in-dev" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="initial commit" />
-    <MESSAGE value="tasks file mail instance updated" />
-    <MESSAGE value=".gitingnore file updated" />
-    <MESSAGE value="excel files deleted" />
-    <MESSAGE value=".gitignore file added" />
-    <MESSAGE value="docker file added" />
-    <MESSAGE value="dockerfile and workflow file updated" />
-    <MESSAGE value="workflow file updated" />
-    <MESSAGE value="new feature updated" />
-    <MESSAGE value="Frontend updated" />
-    <MESSAGE value="serializers.py updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="serializers.py updated" />
-  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/general/apis/views.py</url>
+          <url>file://$PROJECT_DIR$/apps/stb/apis/views.py</url>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/apps/general/apis/serializers.py</url>
+          <url>file://$PROJECT_DIR$/apps/core/apis/urls.py</url>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/analytiQA$utils.coverage" NAME="utils Coverage Results" MODIFIED="1750049932885" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/analytiQA/helpers" />
   </component>
 </project>
