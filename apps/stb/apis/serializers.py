@@ -1,6 +1,6 @@
 import re
 from rest_framework import serializers
-from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease
+from apps.stb.models import Language, STBManufacture, NatCo, NatcoRelease, NatCoFirmware
 
 
 def non_number_validator(value):
@@ -128,13 +128,58 @@ class NatcoFilterSerializerView(serializers.ModelSerializer):
         represent['label'] = instance.natco
         return represent
 
+
+class NatcoFirmwareOptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NatCoFirmware
+        fields = ('id', 'name',)
+
+
+class NatcoFirmwareSerializer(serializers.ModelSerializer):
+
+    id = serializers.IntegerField(
+        read_only=True
+    )
+
+    class Meta:
+        model = NatCoFirmware
+        fields = ('id', 'name',)
+
+
 class NatcoReleaseInfo(serializers.ModelSerializer):
+
+    id = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         model = NatcoRelease
         exclude = ('created', 'modified')
 
+    def validate(self, attrs):
+        excluded_fields = ['build_version', 'version']
+        for key, value in attrs.items():
+            if key not in excluded_fields:
+                if attrs[key] is None:
+                    raise serializers.ValidationError(f"{key} cannot be Empty")
+            else:
+                pass
+        return attrs
+
     def to_representation(self, instance):
         response =  super().to_representation(instance)
         response['natcos'] = instance.natcos.natco
         return response
+
+
+class RunTestCaseSerializer(serializers.Serializer):
+
+    node_id = serializers.CharField(required=True, write_only=True)
+    test_pack_revision = serializers.CharField(required=True, write_only=True)
+    test_cases = serializers.ListField(child=serializers.CharField(required=True, write_only=True))
+    remote_control = serializers.CharField(required=True, write_only=True)
+
+
+
+

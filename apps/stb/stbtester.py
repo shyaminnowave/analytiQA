@@ -1,10 +1,9 @@
 import logging
 import json
 import requests
-from dataclasses import dataclass
-from apps.stb.models import STBUrl, STBToken
+from abc import ABC, abstractmethod, ABCMeta
+from apps.stb.models import STBAuthToken
 from typing import Dict, Any, Optional, List, Union
-from urllib.parse import urljoin
 from requests.exceptions import RequestException, Timeout, ConnectionError
 
 
@@ -18,10 +17,31 @@ class APIError(Exception):
         super().__init__(self.message)
 
 
-@dataclass
-class APIClient:
+class BaseAPIClient(metaclass=ABCMeta):
 
-    def make_request(self, method, endpoint=None, params=None, data=None, headers=None):
+    """
+    Abstract base class for API clients.
+    """
+
+    @abstractmethod
+    def make_request(self, method: str, endpoint: str, params: Optional[Dict]=None, data: Optional[Union[Dict, str]]=None,
+                     headers: Optional[Dict]=None):
+        pass
+
+    @abstractmethod
+    def get(self, endpoint: str, params: Optional[Dict]=None, headers: Optional[Dict]=None):
+        pass
+
+    @abstractmethod
+    def post(self, endpoint: str, params: Optional[Dict]=None, data: Optional[Union[Dict, str]]=None,
+                     headers: Optional[Dict]=None):
+        pass
+
+
+class APIClient(BaseAPIClient):
+
+    def make_request(self, method: str, endpoint: str, params: Optional[Dict]=None, data: Optional[Union[Dict, str]]=None,
+                     headers: Optional[Dict]=None):
         request_headers = headers
         logger = logging.getLogger(__name__)
         logger.debug(f"Making {method} request to {endpoint}")
@@ -32,10 +52,11 @@ class APIClient:
             logger.error(str(e))
             return None
 
-    def get(self, endpoint=None, params=None, headers=None):
+    def get(self, endpoint: str = None, params: Optional[Dict]=None, headers: Optional[Dict]=None):
         return self.make_request('GET', endpoint=endpoint, params=params, headers=headers)
 
-    def post(self, endpoint=None, params=None, data=None, headers=None):
+    def post(self, endpoint: str = None, params: Optional[Dict]=None, data: Optional[Union[Dict, str]]=None,
+                     headers: Optional[Dict]=None):
         return self.make_request('POST', endpoint=endpoint, params=params, data=data, headers=headers)
 
 
@@ -57,14 +78,15 @@ class STBRepository:
             Exception: If the URL cannot be retrieved
         """
         try:
-            url = STBUrl.objects.get()
-            return url.endpoint
+            return "https://innowave.stb-tester.com/api/v2/"
+            # url = STBUrl.objects.get()
+            # return url.endpoint
         except Exception as e:
             logging.error(f"Failed to retrieve STB URL: {str(e)}")
             raise
 
     @staticmethod
-    def get_token() -> str:
+    def get_token(request=None) -> Optional[str]:
         """
         Get the access token from the database.
 
@@ -75,22 +97,31 @@ class STBRepository:
             Exception: If the token cannot be retrieved
         """
         try:
-            token = STBToken.objects.get()
-            return token
+            if request:
+                token = STBAuthToken.objects.get(user=request.user)
+            else:
+                token = STBAuthToken.objects.get(user='shyam6132@gmail.com')
+            return token.get_authorization_token
+        except STBAuthToken.DoesNotExist:
+            logging.warning("STB token not found")
+            return None
         except Exception as e:
             logging.error(f"Failed to retrieve STB token: {str(e)}")
-            raise
+            raise APIError(f"Failed to retrieve STB token: {str(e)}") from e
+
 
 
 class STBClient:
 
-    def __init__(self, baseurl=None, headers=None):
+    def __init__(self, baseurl=None, request=None, **kwargs):
         self.logger = logging.getLogger(__name__)
-        self.baseurl = baseurl
-        self.headers = headers
+        self.baseurl = baseurl or STBRepository.get_base_url()
+        self.request = request
         self.client = APIClient()
 
-    def build_results_url(self, testscript, date=None):
+
+    @staticmethod
+    def generate_results_url(testscript, date=None):
         """
         This will build a URL based on the given testscript and date
         :param testscript:
@@ -102,11 +133,17 @@ class STBClient:
         else:
             return f'results?filter=testcase:{testscript}&sort=date:asc'
 
+    @staticmethod
+    def get_headers(request) -> str:
+        token = STBRepository.get_token(request)
+        return token
+
     def get_results(self, testscript, date=None):
-        endpoint = f"{self.baseurl}{self.build_results_url(testscript, date=date)}"
+        get_token = self.get_headers(self.request)
+        endpoint = f"{self.baseurl}{self.generate_results_url(testscript, date=date)}"
         try:
             self.logger.info(f"Fetching results for testcase {testscript}")
-            response = self.client.get(endpoint, headers=self.headers)
+            response = self.client.get(endpoint, headers=get_token)
 
             if response.status_code == 200:
                 return response.json()
@@ -129,9 +166,11 @@ class STBClient:
             self.logger.error(f"Unexpected error: {str(e)}")
             raise APIError(f"Unexpected error: {str(e)}")
 
+
     def get_stb_node_info(self):
+        get_token = self.get_headers(self.request)
         try:
-            response = self.client.get(endpoint=self.baseurl, headers=self.headers)
+            response = self.client.get(endpoint=self.baseurl, headers=get_token)
             if response.status_code == 200:
                 result = response.json()
                 self.logger.info(f"Run test result: {result}")
@@ -145,11 +184,48 @@ class STBClient:
         except Exception as e:
             raise APIError(f"Unexpected error: {str(e)}")
 
+    def get_node_status(self):
+        endpoint = f"{self.baseurl}/nodes"
+        get_token = {
+            "Authorization": "token 1TUvMNqfshWzQPhWNztb0eJOWfx7G_RV",
+        }
+        try:
+            self.logger.info(f"Fetching node status")
+            response = self.client.get(endpoint, headers=get_token)
+            if response.status_code == 200:
+                data = response.json()
+                _status = []
+                for i in range(len(data)):
+                    temp = {
+                        "node_id": data[i]["node_id"],
+                        "status": data[i]["available"],
+                    }
+                    _status.append(temp)
+                self.logger.info(f"Fetching node status")
+                return _status
+            elif response.status_code == 404:
+                self.logger.warning(f"Access forbidden")
+                return []
+            else:
+                self.logger.error(f"API returned unexpected status code: {response.status_code}")
+                return None
+        except APIError as e:
+            self.logger.error(f"API Error: {e.message}, Status: {e.status_code}")
+            raise
+        except Exception as e:
+            raise APIError(f"Unexpected error: {str(e)}")
+
+
     def get_testcase_names(self, branch):
-        endpoint = f"test_pack/{branch}/test_case_names"
+        # get_token = self.get_headers(self.request)
+        endpoint = f"{self.baseurl}test_pack/{branch}/test_case_names"
+        get_token = {
+            "Authorization": "token 1TUvMNqfshWzQPhWNztb0eJOWfx7G_RV",
+        }
+
         try:
             self.logger.info(f"Fetching testcase names for branch: {branch}")
-            response = self.client.get(endpoint, headers=self.headers)
+            response = self.client.get(endpoint, headers=get_token)
             if response.status_code == 200:
                 data = response.json()
                 test_cases = data if isinstance(data, list) else data.get("test_cases", [])
@@ -174,7 +250,10 @@ class STBClient:
                              remote_control: str,
                              test_pack_revision: str
                              ):
-        endpoint = "run_tests"
+        get_token = {
+            "Authorization": "token 1TUvMNqfshWzQPhWNztb0eJOWfx7G_RV",
+        }
+        endpoint = f"{self.baseurl}run_tests"
         _data = {
             "node_id": node_id,
             "test_cases": test_cases,
@@ -182,7 +261,8 @@ class STBClient:
             "test_pack_revision": test_pack_revision
         }
         if node_id and test_cases and remote_control and test_pack_revision:
-            response = self.client.post(endpoint, data=json.dumps(_data))
+            response = self.client.post(endpoint=endpoint, data=json.dumps(_data), headers=get_token)
+            print(response)
             if response.status_code == 200 or response.status_code == 201:
                 result = response.json()
                 self.logger.info(f"Run test result: {result}")
@@ -194,3 +274,6 @@ class STBClient:
         else:
             self.logger.error(f"Failed to run testcase: {test_cases}")
             return None
+
+    def __del__(self):
+        self.logger.info(f"{self} - Deleting STB repository...")

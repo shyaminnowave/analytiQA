@@ -45,7 +45,7 @@ class NatCo(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self) -> str:
-        return '%s' % self.natco
+        return '%s - %s' % (self.natco, self.manufacture.name)
 
     class Meta:
         verbose_name = 'Natcos'
@@ -81,8 +81,9 @@ class NatCoFirmware(TimeStampedModel):
 class NatcoRelease(TimeStampedModel):
 
     class ReleaseType(models.TextChoices):
-        MAJOR = 'MR', _('MR')
-        PATCH = "PAT", _('PAT')
+        MAJOR = 'MR', _('Major Release')
+        PATCH = "PAT", _('Patch Release')
+        ENGINEERING = 'ENG', _('Engineering Release')
 
     natcos = models.ForeignKey(NatCo, on_delete=models.CASCADE, related_name='release')
     release_type = models.CharField(choices=ReleaseType.choices, max_length=20, help_text="MR - Major Release")
@@ -91,7 +92,7 @@ class NatcoRelease(TimeStampedModel):
     version = models.CharField(max_length=20, default='', blank=True, null=True)
     firmware = models.ForeignKey(NatCoFirmware, on_delete=models.CASCADE, related_name='releases')
     friendly_name = models.CharField(max_length=200, blank=True, null=True)
-    android_version = models.IntegerField(default=0)
+    android_version = models.DecimalField(default=0, max_digits=20, decimal_places=2, blank=True, null=True)
 
     def __str__(self):
         return f"{self.natcos.natco} {self.release_type} - {self.android_version}"
@@ -125,21 +126,20 @@ class STBNodeConfig(TimeStampedModel):
         return f"{self.stb_node} - {self.natco}"
 
     class Meta:
-        verbose_name = 'STB NodeConfigs'
-        verbose_name_plural = 'STB NodeConfigs'
+        verbose_name = 'STB Node Configs'
+        verbose_name_plural = 'STB Node Configs'
 
 
-class STBUrl(TimeStampedModel):
+class StbBaseURL(TimeStampedModel):
 
-    name = models.CharField(max_length=200, unique=True)
-    endpoint = models.URLField(max_length=400)
-    is_active = models.BooleanField(default=True)
+    rest_endpoint = models.CharField(max_length=200, unique=True)
+    private_endpoint = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.rest_endpoint
 
 
-class StbApi(TimeStampedModel):
+class StbAPIEndpoint(TimeStampedModel):
 
     name = models.CharField(max_length=200, unique=True)
     url = models.URLField(max_length=400)
@@ -149,15 +149,44 @@ class StbApi(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'STB API'
+        verbose_name_plural = 'STB API'
 
-class STBToken(TimeStampedModel):
-    name = models.CharField(max_length=200, unique=True)
+
+class STBAuthToken(TimeStampedModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     access_token = models.CharField(max_length=400)
 
     def __str__(self):
-        return self.name
+        return "%s - %s" % (self.user, self.access_token)
 
+    @property
+    def get_authorization_token(self):
+        return {
+            "Authorization": f"token {self.access_token}"
+        }
+
+
+    class Meta:
+        verbose_name = 'STB Authorization Token'
+        verbose_name_plural = 'STB Authorization Token'
+
+
+class STBScheduleModel(TimeStampedModel):
+
+    job_id = models.CharField(max_length=200, unique=True)
+    job_url = models.URLField(max_length=400, blank=True, null=True)
+    log_url = models.URLField(max_length=400, blank=True, null=True)
+    result_counts = models.JSONField(default=dict)
+    start_time = models.CharField(max_length=200)
+    end_time = models.CharField(max_length=200)
+    status = models.CharField(max_length=10, default='', blank=True, null=True)
+    triage_url = models.URLField(max_length=400, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'STB schedule model'
+        verbose_name_plural = 'STB schedule model'
 
 class StbResult(TimeStampedModel):
 
@@ -171,7 +200,7 @@ class StbResult(TimeStampedModel):
     result_url = models.URLField()
     triage_url = models.URLField()
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    end_time = models.DateTimeField(blank=True, null=True)
     script = models.ForeignKey('core.TestCaseScript', on_delete=models.CASCADE, blank=True, null=True)
     result = models.CharField(choices=ResultChoice.choices, max_length=10)
     failure_reason = models.TextField(default='', blank=True, null=True)
