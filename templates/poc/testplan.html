@@ -1,0 +1,708 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>TestPlan Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Ajax -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  <!-- jQuery -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .navbar {
+      z-index: 1030;
+    }
+
+    .sidebar {
+      height: 100vh;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 240px;
+      background: linear-gradient(135deg, #343a40, #23272b);
+      padding-top: 1rem;
+      color: white;
+    }
+
+    .sidebar .nav-link {
+      color: #cfd8dc;
+      font-weight: 500;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: #495057;
+      color: #fff;
+      border-radius: 0.375rem;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 80px 30px 30px;
+    }
+
+    .table-container {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .pagination {
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    /* New styles for the form - minimal additions */
+    .progress-step {
+      display: none;
+    }
+
+    .progress-step.active {
+      display: block;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #6c757d;
+    }
+
+    .step-circle.active {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .step-circle.completed {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #module {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">YourCompany</a>
+      <div class="d-flex">
+        <span class="navbar-text text-white">Welcome, <strong>JohnDoe</strong></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <ul class="nav flex-column px-3">
+      <li class="nav-item mb-2">
+        <a class="nav-link" href="{% url 'testcase' %}">
+          <i class="bi bi-list-check me-2"></i> Test Case
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a class="nav-link active" href="{% url 'testplan' %}">
+          <i class="bi bi-clipboard-data me-2"></i> Test Plan
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="table-container">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Test Plan Listing</h4>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTestCaseModal">
+          <i class="bi bi-plus-circle me-2"></i>Create Test Plan
+        </button>
+      </div>
+
+      <div class="table-responsive rounded">
+        <table class="table table-hover align-middle mb-0 bg-white shadow-sm rounded">
+          <thead class="bg-dark text-white">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">TestPlan Name</th>
+              <th scope="col">Module</th>
+              <th scope="col">Priority</th>
+                <th scope="col">Status </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for plan in testplan %}
+                <tr>
+                    <td><a href="{% url 'plan-detail' plan.id %}"><span class="fw-bold">{{ plan.id }}</span></a></td>
+                  <td>{{ plan.name }}</td>
+
+                  <td>
+                      {% for mod in plan.modules.all %}
+                      <span class="badge bg-primary">{{ mod.name | upper }}
+                      </span>
+                          {% endfor %}
+                  </td>
+                  <td>{{ plan.priority | upper}}</td>
+                    <td>{{ plan.status | upper }}</td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+        {% if testplan %}
+      <nav>
+        <ul class="pagination">
+          <li class="page-item {% if not plan.has_previous %} disabled {% endif %}">
+            {% if plan.has_previous %}
+                <a class="page-link" href="?page={{ plan.previous_page_number }}">Previous</a>
+            {% else %}
+                <a class="page-link" href="#">Previous</a>
+            {% endif  %}
+          </li>
+            {% for num in plan.paginator.page_range %}
+              <li class="page-item {% if plan.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+              </li>
+            {% endfor %}
+
+            <li class="page-item {% if not plan.has_next %} disabled {% endif %}">
+                {% if testcases.has_next %}
+                    <a class="page-link" href="?page={{ plan.next_page_number }}">Next</a>
+                {% else %}
+                    <a class="page-link" href="#">Next</a>
+                {% endif %}
+              </li>
+        </ul>
+      </nav>
+    {% endif %}
+    </div>
+  </div>
+    <div class="modal fade" id="createTestCaseModal" tabindex="-1" aria-labelledby="createTestCaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title" id="createTestCaseModalLabel">
+            <i class="bi bi-plus-circle me-2"></i>Create New Test Case
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Progress Bar -->
+          <div class="progress mb-4">
+            <div class="progress-bar" id="progressBar" role="progressbar" style="width: 33%"></div>
+          </div>
+
+          <!-- Step Indicators -->
+          <div class="step-indicator">
+            <div class="step-circle active" id="step1Circle">1</div>
+            <div class="step-circle" id="step2Circle">2</div>
+          </div>
+
+          <form id="testCaseForm">
+            <!-- Step 1: Basic Information -->
+            <div class="progress-step active" id="step1">
+              <h6 class="mb-3 text-primary fw-bold">Step 1: Basic Information</h6>
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="testCaseName" class="form-label">Test Plan Name</label>
+                    <input type="text" class="form-control" id="testplan" placeholder="Enter test plan name" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" rows="3" placeholder="Brief description of the test case"></textarea>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="priority" class="form-label">Priority</label>
+                  <select class="form-select" id="priority" required>
+                    <option value="">Select Priority</option>
+                    <option value="class_3">Class 3</option>
+                    <option value="class_2">Class 2</option>
+                    <option value="class_1">Class 1</option>
+                  </select>
+                </div>
+                  
+                  <div class="col-md-6 mb-3">
+                  <label for="priority" class="form-label">Status</label>
+                  <select class="form-select" id="status" required>
+                    <option value="">Select Status</option>
+                    <option value="todo">Todo</option>
+                    <option value="ongoing">In Development</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="module" class="form-label">Module</label>
+                  <select id="module" multiple required>
+                      {% for mod in modules %}
+                          <option value={{ mod.id }}>{{ mod.name }}</option>
+                      {% endfor %}
+                  </select>
+                  <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple modules</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="module" class="form-label">Output Count</label>
+                    <input type="text" class="form-control" id="out_count" placeholder="Enter Result Count" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Test Steps -->
+            <div class="progress-step" id="step2">
+              <h6 class="mb-3 text-primary fw-bold">Step 2: Test Steps & Expected Results</h6>
+
+              <!-- Test Cases Table -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="form-label">Test Cases</label>
+                  <button type="button" class="btn btn-sm btn-outline-primary" onclick="addTestCaseRow()">
+                    <i class="bi bi-plus-circle me-1"></i>Add Test Case
+                  </button>
+                </div>
+
+                <div class="table-responsive">
+                    <div class="col-md-12 mb-3" id="add-test">
+
+                    </div>
+                  <table class="table table-bordered table-sm" id="testCasesTable">
+                    <thead class="table-light">
+                      <tr>
+                        <th style="width: 10%">#</th>
+                        <th style="width: 60%">Test Case Name</th>
+                          <th style="width: 30%">Score</th>
+                        <th style="width: 10%">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="testCasesTableBody">
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Additional Details -->
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+            <i class="bi bi-arrow-left me-1"></i>Previous
+          </button>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+            Next<i class="bi bi-arrow-right ms-1"></i>
+          </button>
+          <button type="button" class="btn btn-success" id="submitBtn" onclick="submitForm()" style="display: none;">
+            <i class="bi bi-check-circle me-1"></i>Create Test Case
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    let currentStep = 1;
+    const totalSteps = 2;
+    let testStepCounter = 1;
+    let testCaseRowCounter = 1;
+    let testcase = null;
+
+    $(document).ready(function() {
+      $('#module').select2({
+          dropdownParent: $('#createTestCaseModal'),
+        placeholder: "Select options",
+        allowClear: true
+      });
+    });
+
+
+    function addTestCaseRow() {
+      testCaseRowCounter++;
+      const tbody = document.getElementById('add-test');
+      const newRow = document.createElement('tr');
+      let priority = $('#priority').val();
+      let status = $('#status').val();
+      console.log('ts', testcase)
+      $.ajax({
+          type: "POST",
+          url: "http://127.0.0.1:8000/ajax-testcase",
+          contentType: "application/json",
+          data: JSON.stringify({
+            priority: priority,
+              status: status,
+            testcases: testcase,
+          }),
+          headers: {
+              "X-CSRFToken": $("meta[name=csrf-token]").attr("content")
+          },
+          success: function (data) {
+              console.log("testing", newRow)
+
+
+              let optionsHtml = '';
+              if (Array.isArray(data)) {
+                  data.forEach(function (item) {
+                      optionsHtml += `<option value="${item.id}">${item.test_name}</option>`
+                      });
+              }
+              newRow.innerHTML = `
+                     <label for="testcases" class="form-label" id="label_module"></label>
+                      <select class="form-select" id="testcases" multiple required>
+                              ${optionsHtml}
+                      </select>
+
+                        <br>
+<br>
+                      <button type="button" class="btn btn-primary" id="nextBtn" onclick="addTestcaseList()">
+                            Add</i>
+                      </button>
+              `;
+              tbody.appendChild(newRow);
+              updateRemoveButtons();
+               $(document).ready(function() {
+        console.log('ready')
+      $('#testcases').select2({
+          dropdownParent: $('#createTestCaseModal'),
+        placeholder: "Select options",
+        allowClear: true
+      });
+    });
+          },
+          error: function (error) {
+              console.log("Error", error)
+          }
+      });
+    }
+
+    function addTestcaseList() {
+        let testcases = $('#testcases').val();
+        console.log('rq', testcases)
+        console.log('ss', testcase)
+        $("#testCasesTableBody").empty();
+        $.ajax(
+            {
+                type: "POST",
+                url: "http://127.0.0.1:8000/check-score",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    testcases: testcases,
+                }),
+                headers: {
+                      "X-CSRFToken": $("meta[name=csrf-token]").attr("content")
+                },
+                success: function (data) {
+                    testcase = testcase.concat(data);
+                    console.log('test', testcase)
+                    testcase.forEach(function (data) {
+                        $("#testCasesTableBody").append(
+                            `<tr>
+                                <td>${data.id}</td>
+                                <td>${data.name}</td>
+                                <td>${data.score}</td>
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTestCaseRow(this)">
+                                    <i class="bi bi-x"></i>
+                                  </button>
+                                </td>
+                            </tr>
+                            `
+                        )
+                      })
+                }
+            }
+        )}
+
+    function removeTestCaseRow(button) {
+      const row = button.closest('tr');
+      row.remove();
+
+      // Renumber rows
+      const rows = document.querySelectorAll('#testCasesTableBody tr');
+      rows.forEach((row, index) => {
+        row.cells[0].textContent = index + 1;
+      });
+
+      testCaseRowCounter = rows.length;
+      updateRemoveButtons();
+    }
+
+    function updateRemoveButtons() {
+      const removeButtons = document.querySelectorAll('#testCasesTableBody .btn-outline-danger');
+      removeButtons.forEach((button, index) => {
+        // Disable remove button if it's the only row
+        button.disabled = removeButtons.length === 0;
+      });
+    }
+
+    function changeStep(direction) {
+      if (direction === 1 && currentStep <= totalSteps) {
+        if (validateCurrentStep()) {
+          currentStep++;
+          updateStepDisplay();
+        }
+      } else if (direction === -1 && currentStep > 1) {
+        currentStep--;
+        updateStepDisplay();
+      }
+      let priority = $('#priority').val();
+      let status = $('#status').val();
+      let module = $('#module').val();
+        console.log('module', module)
+      $('#testCasesTableBody').empty()
+      $.ajax({
+          type:"POST",
+          url: "http://127.0.0.1:8000/calculate-score",
+          contentType: "application/json",
+          data: JSON.stringify({
+            priority: priority,
+            status: status,
+            module: module
+          }),
+          headers: {
+              "X-CSRFToken": $("meta[name=csrf-token]").attr("content")
+          },
+          success: function (data) {
+              testcase = data;
+              console.log('test', testcase)
+              console.log('data', data)
+              data.forEach(function (data) {
+
+                    $("#testCasesTableBody").append(
+                        `<tr>
+                            <td>${data.id}</td>
+                            <td>${data.name}</td>
+                            <td>${data.score}</td>
+                            <td class="text-center">
+                              <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTestCaseRow(this)">
+                                <i class="bi bi-x"></i>
+                              </button>
+                            </td>
+                        </tr>
+                        `
+                    )
+                  }
+              )
+          },
+          error: function (error) {
+              console.log("Error", error)
+          }
+      })
+    }
+
+    function updateStepDisplay() {
+      // Hide all steps
+      document.querySelectorAll('.progress-step').forEach(step => {
+        step.classList.remove('active');
+      });
+
+      // Show current step
+      document.getElementById(`step${currentStep}`).classList.add('active');
+
+      // Update progress bar
+      const progressPercentage = (currentStep / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = progressPercentage + '%';
+
+      // Update step circles
+      for (let i = 1; i <= totalSteps; i++) {
+        const circle = document.getElementById(`step${i}Circle`);
+        circle.classList.remove('active', 'completed');
+
+        if (i < currentStep) {
+          circle.classList.add('completed');
+          circle.innerHTML = '<i class="bi bi-check"></i>';
+        } else if (i === currentStep) {
+          circle.classList.add('active');
+          circle.innerHTML = i;
+        } else {
+          circle.innerHTML = i;
+        }
+      }
+
+      // Update buttons
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (currentStep === 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+      } else if (currentStep === totalSteps) {
+        prevBtn.style.display = 'inline-block';
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+      } else {
+        prevBtn.style.display = 'inline-block';
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+      }
+    }
+
+    function validateCurrentStep() {
+      const currentStepElement = document.getElementById(`step${currentStep}`);
+      const requiredFields = currentStepElement.querySelectorAll('[required]');
+
+      for (let field of requiredFields) {
+        if (!field.value.trim()) {
+          field.focus();
+          field.classList.add('is-invalid');
+          return false;
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      }
+      return true;
+    }
+
+    function addTestStep() {
+      testStepCounter++;
+      const container = document.getElementById('testStepsContainer');
+      const newStep = document.createElement('div');
+      newStep.className = 'test-step-item mb-2';
+      newStep.innerHTML = `
+        <div class="input-group">
+          <span class="input-group-text">${testStepCounter}.</span>
+          <input type="text" class="form-control" placeholder="Enter test step" name="testStep">
+          <input type="text" class="form-control" placeholder="Expected result" name="expectedResult">
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeTestStep(this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(newStep);
+    }
+
+    function removeTestStep(button) {
+      const stepItem = button.closest('.test-step-item');
+      stepItem.remove();
+
+      // Renumber remaining steps
+      const steps = document.querySelectorAll('.test-step-item');
+      steps.forEach((step, index) => {
+        const numberSpan = step.querySelector('.input-group-text');
+        numberSpan.textContent = (index + 1) + '.';
+      });
+
+      testStepCounter = steps.length;
+    }
+
+    function submitForm() {
+        let testplan = $('#testplan').val()
+        let description = $('#description').val()
+        let priority = $('#priority').val();
+        let status = $('#status').val();
+        let module = $('#module').val();
+          $.ajax({
+              type: "POST",
+              url: "http://127.0.0.1:8000/add-test-plan",
+              contentType: "application/json",
+              data: JSON.stringify({
+                testplan: testplan,
+                status: status,
+                description: description,
+                priority: priority,
+                module: module,
+                testcase: testcase
+              }),
+              headers: {
+                  "X-CSRFToken": $("meta[name=csrf-token]").attr("content")
+              },
+              success: function (data) {
+                  console.log(data)
+                  if (data) {
+                      alert('Test Case created successfully!');
+                      document.getElementById('testCaseForm').reset();
+                        currentStep = 1;
+                        testStepCounter = 1;
+                        updateStepDisplay();
+
+                        document.getElementById('testStepsContainer').innerHTML = `
+          <div class="test-step-item mb-2">
+            <div class="input-group">
+              <span class="input-group-text">1.</span>
+              <input type="text" class="form-control" placeholder="Enter test step" name="testStep">
+              <input type="text" class="form-control" placeholder="Expected result" name="expectedResult">
+            </div>
+          </div>
+        `;
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('createTestCaseModal'));
+        modal.close();
+
+              }
+              else {
+                  alert('Test Case created successfully!');
+              }
+              }
+
+
+          })
+    }
+
+
+
+    // Initialize the form when modal is shown
+    document.getElementById('createTestCaseModal').addEventListener('shown.bs.modal', function () {
+      currentStep = 1;
+      updateStepDisplay();
+    });
+
+    // Remove validation classes when user types
+    document.addEventListener('input', function(e) {
+      if (e.target.classList.contains('is-invalid')) {
+        e.target.classList.remove('is-invalid');
+      }
+    });
+  </script>
+</body>
+</html>

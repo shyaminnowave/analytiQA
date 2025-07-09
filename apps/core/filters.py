@@ -20,6 +20,7 @@ class NatcoStatusFilter(django_filters.FilterSet):
 
 class TestCaseFilter(django_filters.FilterSet):
 
+    testcase_type = django_filters.CharFilter(field_name='testcase_type', lookup_expr='in')
     status = django_filters.CharFilter(field_name='status', lookup_expr='in', method='filter_status')
     priority = django_filters.CharFilter(field_name='priority', lookup_expr='in', method='filter_priority')
     automation_status = django_filters.CharFilter(field_name='automation_status', lookup_expr='in',

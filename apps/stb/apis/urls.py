@@ -36,6 +36,7 @@ urlpatterns = [
     # STB Scheduler API
     path('stb-scheduler', StbSchedulerView.as_view(), name='stb-scheduler'),
 
+
     # Option API endpoints
     path('natCo-option', NatCoOptionView.as_view(), name='natCo-option'),
     path('language-option', LanguageOptionView.as_view(), name='language-option'),

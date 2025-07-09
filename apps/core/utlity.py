@@ -1,5 +1,8 @@
-from django.db.models import Model
+import re
+from django.db.models import Model, Q
 from django.db import transaction
+
+from apps.core.models import TestCaseModel
 
 
 class QuerySetEntry:
@@ -14,7 +17,19 @@ class QuerySetEntry:
                 raise Exception
         except Exception as e:
             raise ValueError(f"Error in bulk Creation: {str(e)}")
-        
+
+
+def bulk_filter_update(data, context):
+    value = data.get('field', None)
+    field = context.get('field', None)
+    id_fields = data.get('id_fields', [])
+    _testcase = TestCaseModel.objects.filter(
+        Q(id__in=id_fields) | Q(jira_id__in=id_fields)
+    )
+    for _test in _testcase:
+        setattr(_test, field, value)
+    instance = TestCaseModel.objects.bulk_update(_testcase, fields=[field])
+    return True if instance else False
 
 
 def generate_history_message(instance, validated_data):
@@ -54,3 +69,13 @@ def generate_changed_fields(instance, validated_data):
     if instance.assigned != validated_data.get("assigned", instance.assigned):
         msg["Assigned"] = f"{instance.assigned} changed to {validated_data.get('assigned')}"
     return msg
+
+
+def get_testcase_module(name):
+    if name:
+        module = re.search(r"\[(.*?)\]", name)
+        if module:
+            return module.group(1)
+        else:
+            return 'UnIdentified'
+    return 'UnIdentified'

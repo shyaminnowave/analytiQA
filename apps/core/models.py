@@ -1,7 +1,5 @@
 import re
 import json
-
-from celery.worker.strategy import default
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +13,8 @@ from apps.core.managers import TestCaseManager
 from django.contrib import admin
 from django.core import serializers
 from ckeditor.fields import RichTextField
+from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
 
 
 # Create your models here.
@@ -52,6 +52,21 @@ class TestCaseChoices(models.TextChoices):
     SMOKE = 'smoke', _('Smoke')
 
 # ----------------------------------------------------
+
+class Module(TimeStampedModel):
+
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class TestcaseTypes(TimeStampedModel):
+
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Tag(TimeStampedModel):
@@ -110,17 +125,18 @@ class TestCaseScript(TimeStampedModel):
 
 class TestCaseModel(TimeStampedModel):
 
-    jira_id = models.IntegerField(_("Jira Id"), unique=True, help_text="Jira Id", blank=True, null=True)
+    jira_id = models.IntegerField(_("Jira Id"), help_text="Jira Id", blank=True, null=True)
     name = models.CharField(_("Test Report Name"), max_length=255,
                             help_text="Please Enter the TestCase Name")
     priority = models.CharField(max_length=20, choices=PriorityChoice.choices, default=PriorityChoice.CLASS_THREE,
                                 blank=True, null=True)
     summary = models.TextField(_("Jira Summary"), default='')
     description = RichTextField(default='', help_text=(_("Text Description")))
-    testcase_type = models.CharField(max_length=20, choices=TestCaseChoices.choices,  default=TestCaseChoices.SMOKE)
+    testcase_type = models.ForeignKey(TestcaseTypes, max_length=20, to_field='name', on_delete=models.SET_NULL, null=True)
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.TODO)
     automation_status = models.CharField(max_length=100, choices=AutomationChoices.choices,
                                          default=AutomationChoices.NOT_AUTOMATABLE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, blank=True, null=True)
     tags = models.ManyToManyField(Tag, blank=True)
     comments = GenericRelation("Comment", related_name='core')
     steps = models.JSONField(default="", blank=True, null=True, help_text=(_('This is a Field to store all the Step Related to TestCase')))
@@ -140,6 +156,12 @@ class TestCaseModel(TimeStampedModel):
             ('can_change_status_to_review', "Can Change Status to Review"),
             ('can_change_status_to_ready', "Can Change Status to Ready")
         )
+
+    @property
+    def get_testcase_type(self, cls):
+        queryset = cls.objects.distinct('testcase_type')
+        print(queryset)
+        return queryset.values_list('testcase_type', flat=True)
 
     @property
     def _history_user(self):
@@ -163,6 +185,8 @@ class TestCaseModel(TimeStampedModel):
         return "%s" % self.description
 
     def save(self, **kwargs):
+        if not self.module:
+            pass
         if not self.pk:
             get_current_id = TestCaseModel.objects.aggregate(max_id=Max('id'))['max_id']
             if get_current_id is None:
@@ -330,13 +354,81 @@ class Comment(TimeStampedModel):
 #
 #     def __str__(self):
 #         return self.job_id
-    
+
+# ---------------------------------------------------Test Planning------------------------------------------------------
+
+
+class TestCaseMetaData(TimeStampedModel):
+
+    testcase = models.ForeignKey(TestCaseModel, on_delete=models.CASCADE, related_name='planning', blank=True,
+                                 null=True, to_field='id',)
+    likelihood = models.IntegerField(default=0, blank=True, null=True,
+                                     validators=[MinValueValidator(0), MaxValueValidator(5)])
+    impact = models.IntegerField(default=0, blank=True, null=True,
+                                 validators=[MinValueValidator(0), MaxValueValidator(5)])
+    priority = models.IntegerField(default=0, blank=True, null=True,
+                                   validators=[MinValueValidator(0), MaxValueValidator(5)])
+    failure_rate = models.DecimalField(default=0, blank=True, null=True,
+                                       decimal_places=2, max_digits=5)
+    failure = models.IntegerField(default=0, blank=True, null=True,)
+    total_runs = models.IntegerField(default=0, blank=True, null=True,)
+    direct_impact = models.CharField(max_length=10, default='Yes', blank=True, null=True,)
+    defects = models.IntegerField(default=0, blank=True, null=True,)
+    severity = models.IntegerField(default=0, blank=True, null=True,
+                                   validators=[MinValueValidator(0), MaxValueValidator(10)])
+    feature_size = models.IntegerField(default=0, blank=True, null=True,
+                                       validators=[MinValueValidator(0), MaxValueValidator(10)])
+    execution_time = models.DecimalField(default=0, blank=True, null=True,
+                                         decimal_places=2, max_digits=4)
+
+    def __str__(self):
+        return self.testcase.name
+
+    @classmethod
+    def get_max_time(cls):
+        max_time = cls.objects.values_list('execution_time', flat=True).distinct()
+        return max(max_time) if max_time else 0
+
+    def get_risk_score(self):
+        return Decimal(self.impact * self.likelihood) / 25
+
+    def get_history_metrix(self):
+        return Decimal(self.failure / self.total_runs) * self.failure_rate
+
+    def get_impact_value(self):
+        if self.direct_impact == 'Yes':
+            return Decimal(1)
+        return Decimal(0)
+
+    def get_defect_value(self):
+        return Decimal((self.defects / self.feature_size) * self.severity)
+
+    def get_execution_time(self):
+        return Decimal(self.execution_time / self.get_max_time())
+
+    def get_testscore(self):
+        return (self.get_risk_score() +
+                self.get_history_metrix() +
+                self.get_impact_value() +
+                self.get_defect_value() -
+                self.get_execution_time()
+                )
+
+    class Meta:
+        verbose_name = 'TestCase MetaData'
+        verbose_name_plural = 'TestCase MetaData'
+
+
     
 class TestPlan(TimeStampedModel):
 
     name = models.CharField(_("name"), max_length=255, help_text=(_('Name of TestPlan')))
-    description = models.TextField(_("Description"))
-    testcases = models.ManyToManyField(TestCaseModel, related_name='test_plan_tests')
+    description = models.TextField(_("Description"), blank=True, null=True)
+    priority = models.CharField(choices=PriorityChoice.choices, max_length=255, blank=True, null=True)
+    status = models.CharField(choices=StatusChoices.choices, max_length=255, blank=True, null=True)
+    output_count = models.IntegerField(_("Output count"), blank=True, null=True)
+    modules = models.ManyToManyField(Module, blank=True, related_name='moduels')
+    testcases = models.ManyToManyField(TestCaseModel, through='TestScore')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
@@ -348,3 +440,13 @@ class TestPlan(TimeStampedModel):
 
     def testcase_count(self):
         return self.testcases.count()
+
+
+class TestScore(TimeStampedModel):
+
+    testplan = models.ForeignKey(TestPlan, on_delete=models.CASCADE, related_name='scores', to_field='id')
+    testcases = models.ForeignKey(TestCaseModel, related_name='testcases', blank=True, on_delete=models.CASCADE, null=True,)
+    testscore = models.DecimalField(default=0, blank=True, null=True, decimal_places=2, max_digits=4)
+
+    def __str__(self):
+        return self.testplan.name

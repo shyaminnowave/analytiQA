@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from openpyxl import load_workbook
 from apps.core.models import (
     TestCaseModel,
-    Tag
+    Tag, TestcaseTypes
 )
 from apps.core.utlity import QuerySetEntry
 from abc import ABC, abstractmethod
@@ -51,6 +51,12 @@ class TestCaseExl(ExcelFileFactory):
             tag_instance, created = Tag.objects.get_or_create(name=tg)
             _ins.append(tag_instance)
         return _ins
+
+    @staticmethod
+    def get_testcase_type(testcase_type):
+        instance, created = TestcaseTypes.objects.get_or_create(name=testcase_type.lower())
+        return instance
+
     
     def _build_error_response(self, error):
         self.response_format.update({
@@ -85,11 +91,11 @@ class TestCaseExl(ExcelFileFactory):
         prev = None
         headings = self.get_row_dict()
 
-        print(headings)
         for row in sheet.iter_rows(min_row=2, values_only=True):
             key = row[headings['Key']] if row[headings['Key']] is not None else current_key
-            value = row[headings['Manual Test Steps'] + 1]
-            print(key, value)
+            value = None
+            if headings.get('Manual Test Steps'):
+                value = row[headings['Manual Test Steps'] + 1]
             if key:
                 current_key = key
             prev = value if value in ['Action', 'Data', 'Expected Result'] else prev
@@ -136,9 +142,10 @@ class TestCaseExl(ExcelFileFactory):
         """
         Import TestCase and Its Related Data from the Excel
         """
+        print("started..")
         testcase_list = set(TestCaseModel.objects.values_list('jira_id', flat=True))
-        _steps = self._parse_step()
         headings = self.get_row_dict()
+        _steps = self._parse_step() if headings.get("Manual Test Steps", None) else None
         testcases_with_tags = []
         tests = []
         _step = dict()
@@ -169,11 +176,13 @@ class TestCaseExl(ExcelFileFactory):
                             "summary": row[headings['Summary']],
                             "description": row[headings['Summary']],
                             "priority": priority.get(row[headings['Priority']], 'class_3'),
-                            "testcase_type": 'performance',
+                            "testcase_type": self.get_testcase_type(row[headings]['Testcase Type']) if headings.get("Testcase Type", None) else self.get_testcase_type(
+                                "default"
+                            ),
                             "status": status.get(row[headings['Status']], 'todo'),
                             "reporter": row[headings['Reporter']],
                             "created_by": self.user,
-                            "steps": dict(_steps[row[headings['Key']]]),
+                            "steps": dict(_steps[row[headings['Key']]]) if _steps else None,
                         }
                         tests.append(_data)
                         testcases_with_tags.append({int(str(row[headings['Key']]).split("-")[1]): tag_names})
