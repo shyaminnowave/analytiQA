@@ -1,11 +1,9 @@
 from django.contrib import admin
 from django.urls import path, reverse
-from django.db import models
 from django.shortcuts import render, redirect
-
 from apps.core.apis.views import TestCaseHistory
 from apps.core.models import TestCaseModel, TestCaseStep, NatcoStatus, \
-                                TestCaseScript, Comment, ScriptIssue, Tag, TestPlan, TestCaseHistoryModel
+                                TestCaseScript, Comment, ScriptIssue, Tag, TestPlan, TestCaseHistoryModel, Module, TestcaseTypes
 from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ExportMixin, ImportExportModelAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -47,9 +45,9 @@ class TestCaseModelAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
     form = TestCaseForm
 
-    list_display = ('id', 'jira_link', 'name', 'priority', 'testcase_type', 'automation_status', 'created_by')
-    list_filter = ('priority', 'testcase_type')
-    list_editable = ('automation_status', 'priority', 'testcase_type', 'created_by')
+    list_display = ('id', 'jira_link', 'name', 'module', 'priority', 'testcase_type', 'automation_status', 'created_by')
+    list_filter = ('priority', 'testcase_type', 'status', 'module')
+    list_editable = ('module', 'automation_status', 'priority', 'testcase_type', 'created_by')
     search_fields = ['tags', 'name']
     history_list_display = ["status", 'changed_to', 'history_type']
     autocomplete_fields = ['tags']
@@ -168,3 +166,5 @@ admin.site.register(NatcoStatus, NatcoStatusAdmin)
 admin.site.register(Comment)
 admin.site.register(TestCaseStep, ImportExportModelAdmin)
 admin.site.register(TestCaseHistoryModel)
+admin.site.register(Module)
+admin.site.register(TestcaseTypes)

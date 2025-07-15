@@ -1,11 +1,12 @@
 import os
+import re
 import logging
 from rest_framework import generics
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import Q
 from apps.core.models import (TestCaseModel, TestCaseStep, NatcoStatus, Comment, ScriptIssue, TestCaseScript, Tag, \
-                              TestCaseHistoryModel)
+                              TestCaseHistoryModel, Module, TestcaseTypes)
 from apps.core.apis.serializers import (
     TestCaseSerializerList,
     TestCaseSerializer,
@@ -22,6 +23,9 @@ from apps.core.apis.serializers import (
     StepsListSerializer,
     IssuesListSerializer,
     TestCaseHistoryModelSerializer,
+    ModuleSerializer,
+    TestCaseTypeOptionSerializer,
+    TestCaseTypeSerializer
 )
 from django.core.files.storage import default_storage
 from rest_framework.response import Response
@@ -37,7 +41,9 @@ from django.db.models import Prefetch, Case, When, Value, IntegerField
 from rest_framework import serializers
 from rest_framework.views import APIView
 from django.http import HttpResponse
+from apps.core.utlity import get_testcase_module
 from apps.core.excel import TestCaseExl
+from apps.stb.mixins import OptionMixin
 from apps.core.tasks import process_excel
 from apps.core.permissions import TestCaseUpdatePermission, CommentPermission
 #########################################################################
@@ -70,6 +76,11 @@ class BulkFieldUpdateView(generics.GenericAPIView):
 
     serializer_class = BulkFieldUpdateSerializer
 
+    def get_serializer_context(self):
+        return {
+            'field': self.kwargs.get('path').split('/')[0]
+        }
+
     def patch(self, request, *args, **kwargs):
         kwargs_splitted = kwargs.get("path").split("/")
         serializer = self.get_serializer(data=request.data)
@@ -77,7 +88,7 @@ class BulkFieldUpdateView(generics.GenericAPIView):
             match kwargs_splitted[0]:
                 case "status":
                     instance = serializer.update_testcase_status(serializer.validated_data)
-                case "automation-status":
+                case "automation_status":
                     instance = serializer.update_testcase_automation(serializer.validated_data)
                 case "natco":
                     match kwargs_splitted[1]:
@@ -109,6 +120,7 @@ class BulkFieldUpdateView(generics.GenericAPIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+
 #########################################################################
 
 
@@ -137,16 +149,13 @@ class TestCaseListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = None
-        type = self.request.GET.get('type')
-        match type:
-            case "performance":
-                queryset = TestCaseModel.objects.performance_testcase()
-            case "smoke":
-                queryset = TestCaseModel.objects.smoke_testcase()
-            case "soak":
-                queryset = TestCaseModel.objects.soak_testcase()
-            case _:
-                queryset = TestCaseModel.objects.all()
+        types = self.request.GET.get('type', None)
+        if types:
+            queryset = TestCaseModel.objects.filter(
+                testcase_type = types.lower()
+            )
+        else:
+            queryset = TestCaseModel.objects.all()
         return queryset.only("jira_id", "name", "priority", "testcase_type",
                                                                "status", "automation_status")
 
@@ -747,3 +756,56 @@ class NatCoStatusView(generics.ListAPIView):
         "device",
         "applicable"
     ]
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+class TestcaseTypeOptionView(cgenerics.OptionAPIView):
+
+    queryset = TestcaseTypes.objects.all()
+    serializer_class = TestCaseTypeOptionSerializer
+
+
+class TestcaseTypeView(cgenerics.CustomCreateAPIView):
+
+    serializer_class = TestCaseTypeSerializer
+
+
+class ModulAPIView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        queryset = TestCaseModel.objects.only('name')
+        lst = set()
+        for item in queryset:
+            x = get_testcase_module(item.name)
+            lst.add(x)
+        try:
+            l = []
+            for i in lst:
+                instance = Module.objects.filter(name=i).first()
+                if not instance:
+                    _temp = {
+                        "name": i
+                    }
+                    l.append(Module(**_temp))
+            Module.objects.bulk_create(l)
+            return Response("Success")
+        except Exception as e:
+            print(e)
+            return Response("Fail")
+
+
+class MapModuleViewAPI(APIView):
+
+    def get(self, request, *args, **kwargs):
+        queryset = TestCaseModel.objects.all()
+        try:
+            for item in queryset:
+                module = get_testcase_module(item.name)
+                get_module = get_object_or_404(Module, name=module)
+                setattr(item, 'module', get_module)
+                print(item.module)
+            instance = TestCaseModel.objects.bulk_update(queryset, fields=['module'])
+            return Response("Success")
+        except Exception as e:
+            print(e)
+            return Response("Fail")

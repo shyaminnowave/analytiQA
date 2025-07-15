@@ -5,7 +5,7 @@ from rest_framework import serializers
 from simple_history.utils import update_change_reason
 from apps.account.models import Account
 from apps.core.models import TestCaseModel, NatcoStatus, \
-    TestCaseChoices, Comment, ScriptIssue, TestCaseScript, Tag, TestCaseHistoryModel
+    TestCaseChoices, Comment, ScriptIssue, TestCaseScript, Tag, TestCaseHistoryModel, Module, TestcaseTypes
 from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from apps.core.utlity import generate_history_message, generate_changed_fields
 from apps.general.utils import get_status_group
+from apps.core.utlity import bulk_filter_update
 # from apps.stb_tester.views import BaseAPI
 
 
@@ -24,12 +25,20 @@ class BulkFieldUpdateSerializer(serializers.Serializer):
     field = serializers.CharField()
 
     def update_testcase_status(self, validated_data, instance=None):
-        _testcase = [TestCaseModel.objects.get(jira_id=test_case) for test_case in validated_data.get('id_fields')]
-        _status = validated_data.get('field', None)
-        for _test in _testcase:
-            _test.status = _status
-        instance = TestCaseModel.objects.bulk_update(_testcase, fields=['status'])
-        return True if instance else False
+        # _testcase = [TestCaseModel.objects.get(id=test_case) for test_case in validated_data.get('id_fields')]
+        try:
+            bulk_filter = bulk_filter_update(validated_data, context=self.context)
+            if bulk_filter: return True
+            else:
+                return False
+        except Exception as e:
+            logging.error(str(e))
+        # _status = validated_data.get('field', None)
+        #
+        # for _test in _testcase:
+        #     _test.status = _status
+        # instance = TestCaseModel.objects.bulk_update(_testcase, fields=['status'])
+        # return True if instance else False
 
     def update_testcase_automation(self, validated_data, instance=None):
         _testcase = [TestCaseModel.objects.get(jira_id=test_case) for test_case in validated_data.get('id_fields')]
@@ -64,14 +73,11 @@ class TestCaseSerializerList(serializers.ModelSerializer):
         fields = ('id', 'name', 'jira_id', 'priority', 'testcase_type',
                   'status', 'automation_status')
 
-
-class StepDataSerializer(serializers.Serializer):
-
-    id = serializers.IntegerField(read_only=True)
-    step_number = serializers.IntegerField(min_value=1, max_value=100)
-    step_action = serializers.CharField()
-    step_data = serializers.CharField()
-    expected_result = serializers.CharField()
+    def to_representation(self, instance):
+        represent = super().to_representation(instance)
+        represent['status'] = instance.status.capitalize()
+        represent['testcase_type'] = instance.testcase_type.name.capitalize()
+        return represent
 
 
 class NatcoStatusSerializer(serializers.ModelSerializer):
@@ -167,7 +173,7 @@ class TestCaseSerializer(serializers.ModelSerializer):
         message = None
         history_change_reason = validated_data.get('history_change_reason', message)
         group = get_status_group(validated_data.get('automation_status', None))
-        if validated_data.get('assigned') is None and instance.assigned: return instance
+        if validated_data.get('assigned') is None and instance.assigned: pass
         if group is not None and instance.automation_status != validated_data.get('automation_status'):
             validated_data['assigned'] = group.owner
         if history_change_reason is None:
@@ -581,3 +587,29 @@ class TestCaseHistoryModelSerializer(serializers.ModelSerializer):
         represent["changed_to"] = [instance.changed_fields]
         represent['history_date'] = self.time_format(instance.created)
         return represent
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Module
+        fields = ('name', )
+
+
+class TestCaseTypeOptionSerializer(serializers.ModelSerializer):
+
+    value = serializers.CharField(source='name')
+    label = serializers.SerializerMethodField(read_only=True)
+
+    def get_label(self, obj):
+        return obj.name.capitalize() if obj.name else None
+
+    class Meta:
+        model = TestcaseTypes
+        fields = ('label', 'value')
+
+class TestCaseTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestcaseTypes
+        fields = ('name', )

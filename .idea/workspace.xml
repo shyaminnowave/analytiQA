@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="06281406-d2d3-40d6-8375-b4992872b143" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/analytiQA/helpers/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apps/general/notification_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/analytiQA-prod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/analytiQA-prod.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analytiQA/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analytiQA/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytiQA/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/apis/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0002_alter_scriptissue_options.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0003_tag_delete_testcaseexcelresult_and_more.py" beforeDir="false" />
@@ -42,51 +34,6 @@
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0024_alter_testcasejobid_testscript.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0025_testcasescript_job_ids_delete_testcasejobid.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/core/migrations/0026_testcasescript_supported_natcos.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/core/utlity.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/utlity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0002_userlogs.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0003_delete_userlogs.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0004_notification_assigned_to_alter_notification_user.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0005_notification_content_type_notification_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0006_notification_object_id.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0007_statusgroups.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0008_rename_statusgroups_statusgroup.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0009_remove_statusgroup_group_statusgroup_name.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0010_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0011_remove_statusgroup_status_statusgroup_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0012_jobidcounter.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0013_alter_statusgroup_status.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/migrations/0014_alter_status_options.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/general/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/general/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/apis/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/apis/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/apis/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/apis/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0002_natcorelease_firmware.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0003_natcorelease_build_version.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0004_alter_natcorelease_firmware.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0005_alter_natcorelease_release_type.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0006_natcofirmware_alter_natcorelease_firmware.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0007_historicalnatco_manufacture_remove_natco_manufacture_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0008_alter_historicalnatco_options.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0009_alter_historicalnatco_options_alter_natco_options_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0010_historicalstbnodeconfig_is_active_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0011_stbresults_stbtoken_stburl.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0012_delete_stbresults.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0013_stbresult.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0014_stbtoken_user.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0015_stbapi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0016_alter_natcorelease_options_stbnodemapping.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0017_natcorelease_friendly_name.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/migrations/0018_alter_historicalstbnodeconfig_options_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/mixins.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/stb/stbtester.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/stb/stbtester.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/celerybeat-schedule" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,6 +76,7 @@
   &quot;keyToString&quot;: {
     &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;in-dev&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -147,8 +95,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-PY-242.21829.153" />
-        <option value="bundled-python-sdk-464836ebc622-b74155a9e76b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.21829.153" />
+        <option value="bundled-python-sdk-e0ed3721d81e-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.159" />
       </set>
     </attachedChunks>
   </component>
@@ -175,6 +122,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

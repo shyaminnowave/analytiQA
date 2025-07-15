@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 from apps.core.models import AutomationChoices
+from .urlbuilder import UrlBuilder
 
 # Create your models here.
 
@@ -64,9 +65,6 @@ class Notification(TimeStampedModel):
     def __str__(self):
         return "%s - %s" % (self.message, self.user.get_full_name())
 
-    class Meta:
-        ordering = ['-created']
-
     def get_absolute_url(self):
         context_dict = {
             "scriptissue": 'script/issue-detail',
@@ -82,3 +80,15 @@ class Notification(TimeStampedModel):
             return f"{context_dict[self.content_type.model]}/"
         else:
             return None
+
+    class Meta:
+        ordering = ['-created']
+
+
+class TokenModel(TimeStampedModel):
+
+    name = models.CharField(max_length=100)
+    github_token = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
