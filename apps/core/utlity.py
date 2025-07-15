@@ -79,3 +79,13 @@ def get_testcase_module(name):
         else:
             return 'UnIdentified'
     return 'UnIdentified'
+
+
+def get_jira_id(name):
+    if name:
+        jira = re.search(r"(TTVTM-\d{1,6})", name)
+        if jira:
+            return jira.group(1)
+        else:
+            return None
+    return None

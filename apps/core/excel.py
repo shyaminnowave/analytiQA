@@ -9,6 +9,8 @@ from abc import ABC, abstractmethod
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from apps.general.models import Notification
 from collections import defaultdict
+from apps.core.utlity import get_testcase_module
+from apps.core.helpers import QueryHelpers
 
 
 class FileFactory(ABC):
@@ -20,7 +22,7 @@ class FileFactory(ABC):
 class ExcelFileFactory(FileFactory):
     """Base factory class to handle Excel file operations."""
 
-    def __init__(self, file, user):
+    def __init__(self, file, user=None):
         self.response_format = {
             "status": True,
             "status_code": HTTP_200_OK,
@@ -57,7 +59,6 @@ class TestCaseExl(ExcelFileFactory):
         instance, created = TestcaseTypes.objects.get_or_create(name=testcase_type.lower())
         return instance
 
-    
     def _build_error_response(self, error):
         self.response_format.update({
             "status": False,
@@ -135,7 +136,6 @@ class TestCaseExl(ExcelFileFactory):
         if current:
             step_counter[prev_case_id] += 1
             test_cases[prev_case_id][step_counter[prev_case_id]] = current
-        print(dict(test_cases))
         return dict(test_cases)
 
     def import_data(self):
@@ -173,11 +173,12 @@ class TestCaseExl(ExcelFileFactory):
                         _data = {
                             "jira_id": jira_id,
                             "name": row[headings['Summary']] if row[headings['Summary']] is not None else None,
+                            "module": QueryHelpers.get_module_instance(get_testcase_module(row[headings['Summary']])) if row[headings['Summary']] is not None else None,
                             "summary": row[headings['Summary']],
                             "description": row[headings['Summary']],
                             "priority": priority.get(row[headings['Priority']], 'class_3'),
                             "testcase_type": self.get_testcase_type(row[headings]['Testcase Type']) if headings.get("Testcase Type", None) else self.get_testcase_type(
-                                "default"
+                                "product"
                             ),
                             "status": status.get(row[headings['Status']], 'todo'),
                             "reporter": row[headings['Reporter']],
