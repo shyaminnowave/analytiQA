@@ -82,4 +82,4 @@ pillow
 pyxlsb
 python-dotenv
 django-celery-results
-pygithub
+pyGithub

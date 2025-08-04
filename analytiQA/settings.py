@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'apps.account',
     'apps.stb',
     'apps.core',
-    'apps.general'
+    'apps.general',
+    'apps.nightly_sanity',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +80,10 @@ ROOT_URLCONF = 'analytiQA.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'frontend/build',
-                 BASE_DIR / 'templates',],
+        'DIRS': [
+                BASE_DIR / 'frontend/build',  # Assuming you have a build directory for frontend
+                BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -100,22 +103,23 @@ WSGI_APPLICATION = 'analytiQA.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": os.environ.get('DATABASE_ENGINE'),
+        "NAME": os.environ.get('NAME'),
+        "USER": os.environ.get('USERNAME'),
+        "PASSWORD": os.environ.get('PASSWORD'),
+        "HOST": os.environ.get('HOST'),
+        "PORT": os.environ.get('PORT'),
+    },
+    'sanity': {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("SANITY_DB_NAME", None),
+        "USER": os.environ.get("SANITY_DB_USER", None),
+        "PASSWORD": os.environ.get("SANITY_DB_PASSWORD", None),
+        "HOST": os.environ.get("SANITY_DB_HOST", "None"),
+        "PORT": os.environ.get("SANITY_DB_PORT", "None"),
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": os.environ.get('DATABASE_ENGINE'),
-#         "NAME": os.environ.get('NAME'),
-#         "USER": os.environ.get('USERNAME'),
-#         "PASSWORD": os.environ.get('PASSWORD'),
-#         "HOST": os.environ.get('HOST'),
-#         "PORT": os.environ.get('PORT'),
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -136,6 +140,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'account.Account'
+
+DATABASES_ROUTERS = [
+    "analytiQA.helpers.db_router.STBRouter",
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (

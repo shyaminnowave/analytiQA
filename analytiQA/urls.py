@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('api/auth/', include('apps.account.apis.urls', namespace='account')),
     path('api/stb/', include('apps.stb.apis.urls', namespace='stb')),
+    path('api/nightly_sanity/', include('apps.nightly_sanity.apis.urls', namespace='nightly_sanity')),
     path('api/core/', include('apps.core.apis.urls')),
     path('stb/', include('apps.stb.urls')),
     path('api/general/', include('apps.general.apis.urls')),
