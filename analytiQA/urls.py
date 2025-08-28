@@ -18,24 +18,28 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from analytiQA.helpers.custom_schema_view import SanitySwaggerView, MainAppsSwaggerView, MainSchemaView, SanitySchemaView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.poc.urls')),
+
+    path('api/main/schema/', MainSchemaView.as_view(), name='main-schema'),
+    path('api/main/schema/swagger-ui/', MainAppsSwaggerView.as_view(url_name='main-schema'), name='main-swagger-ui'),
+
+    path('api/sanity/schema/', SanitySchemaView.as_view(), name='sanity-schema'),
+    path('api/sanity/schema/swagger-ui/', SanitySwaggerView.as_view(url_name='sanity-schema'), name='sanity-swagger-ui'),
+
     path('stb/', include('apps.stb.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('api/auth/', include('apps.account.apis.urls', namespace='account')),
     path('api/stb/', include('apps.stb.apis.urls', namespace='stb')),
-    path('api/nightly_sanity/', include('apps.nightly_sanity.apis.urls', namespace='nightly_sanity')),
     path('api/core/', include('apps.core.apis.urls')),
-    path('stb/', include('apps.stb.urls')),
     path('api/general/', include('apps.general.apis.urls')),
+    path('api/nightly_sanity/', include('apps.nightly_sanity.apis.urls', namespace='nightly_sanity')),
     path("__debug__/", include("debug_toolbar.urls")),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    # re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
+    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
