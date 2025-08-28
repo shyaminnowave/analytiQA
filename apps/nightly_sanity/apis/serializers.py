@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.nightly_sanity.models import Releases, ApkFiles, TestExecutions
+from apps.nightly_sanity.models import Releases, ApkFiles, TestExecutions, TestIterations, TestCases
 
 
 class ReleaseSerializer(serializers.ModelSerializer):
@@ -34,12 +34,41 @@ class TestExecutionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestExecutions
-        fields = ['id', 'stb_node', 'test', 'total_iterations',  'passed_iterations', 'failed_iterations']
+        fields = [
+            'id', 'total_iterations', 'passed_iterations', 'failed_iterations', 'error_iterations', 'natco', 'get_release', 'get_testcase', 'get_testcase_name'
+        ]
+        
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['stb_node'] = instance.stb_node.friendly_name if instance.stb_node else None
-        representation['test'] = instance.test.functionality if instance.test else None
         return representation
+    
 
+class TestIterationSerializer(serializers.ModelSerializer):
 
+    result_id = serializers.CharField(
+        source='get_result_url',
+        max_length=200,
+        read_only=True
+    )
+
+    box_release_info = serializers.CharField(
+        max_length = 20,
+        read_only = True
+    )
+
+    class Meta:
+        model = TestIterations
+        fields = ['iteration_number', 'execution', 'result', 'failure_reason', 'result_id', 'box_release_info']
+
+    def get_testcase(self, obj):
+        if obj:
+            get_name = TestCases.objects.using('sanity').get(id=obj)
+            return get_name.testcase_name
+        return None
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['natco'] = instance.execution.natco
+        rep['testcase'] = self.get_testcase(instance.execution.testcase_number)
+        return rep

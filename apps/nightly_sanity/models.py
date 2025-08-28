@@ -18,17 +18,13 @@ class ApkFiles(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
+    @property
+    def get_build_version(self):
+        return self.file_path.split('-')[2]
+
     class Meta:
         managed = False
         db_table = 'apk_files'
- 
-    @property
-    def get_build_version(self):
-        """
-        Get all APK files for a specific NATCO.
-        """
-        # Assuming ApkFiles has a foreign key to StbNodes or similar
-        return self.filename.split('-')[2] if '-' in self.filename else None
 
 
 class ApkInstallations(models.Model):
@@ -82,7 +78,7 @@ class TestCases(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
-    test_id = models.CharField(max_length=100)
+    testcase_number = models.CharField(max_length=100)
     test_path = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
@@ -98,15 +94,35 @@ class TestExecutions(models.Model):
     total_iterations = models.IntegerField(blank=True, null=True)
     passed_iterations = models.IntegerField(blank=True, null=True)
     failed_iterations = models.IntegerField(blank=True, null=True)
+    error_iterations = models.IntegerField(blank=True, null=True)
     overall_status = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
+    natco = models.CharField(max_length=50, blank=True, null=True)
+    release_id = models.IntegerField(blank=True, null=True)
+    apk_installation = models.ForeignKey(ApkInstallations, models.DO_NOTHING, blank=True, null=True)
+    testcase_number = models.IntegerField(blank=True, null=True)
+
 
     class Meta:
         managed = False
         db_table = 'test_executions'
         unique_together = (('start_time', 'end_time'),)
-
+    
+    @property
+    def get_release(self):
+        release = Releases.objects.using('sanity').get(id=self.release_id)
+        return release.box_release_info
+    
+    @property
+    def get_testcase(self):
+        testcase = TestCases.objects.using('sanity').get(id=self.testcase_number)
+        return testcase.functionality
+    
+    @property
+    def get_testcase_name(self):
+        testcase = TestCases.objects.using('sanity').get(id=self.testcase_number)
+        return testcase.testcase_name
 
 class TestIterations(models.Model):
     execution = models.ForeignKey(TestExecutions, models.DO_NOTHING, blank=True, null=True)
@@ -119,7 +135,17 @@ class TestIterations(models.Model):
     failure_reason = models.TextField(blank=True, null=True)
     job_uid = models.CharField(max_length=255, blank=True, null=True)
     result_id = models.CharField(max_length=255, blank=True, null=True)
+    release = models.ForeignKey('Releases', on_delete=models.DO_NOTHING, 
+                               db_column='release_id', blank=True, null=True)
+    testcase_ref = models.ForeignKey('TestCases', on_delete=models.DO_NOTHING,
+                                    db_column='testcase_number', blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'test_iterations'
+
+    @property
+    def get_result_url(self):
+        if self.result_id:
+            return f"https://innowave.stb-tester.com/app/#/results?filter=job:{self.job_uid}&tz=Asia/Calcutta&selected_result={self.result_id}"
+        return ''
